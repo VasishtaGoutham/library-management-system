@@ -30,7 +30,7 @@ export default function AdminDashboardPage() {
   const [description, setDescription] = useState('');
   const [coverImageUrl, setCoverImageUrl] = useState('');
   const [categoryId, setCategoryId] = useState<number>(1);
-  const [initialCopies, setInitialCopies] = useState<number>(2);
+  const [initialCopies, setInitialCopies] = useState<number>(1);
 
   // Category creation states
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -622,7 +622,7 @@ export default function AdminDashboardPage() {
                 className="w-full py-3 rounded-xl text-white font-medium transition disabled:opacity-50 mt-2 shadow-md"
                 style={{ backgroundColor: 'var(--accent-color)' }}
               >
-                {addBookMutation.isPending ? 'Saving & Generating Barcodes...' : `Add Book & Create ${initialCopies} Copies`}
+                {addBookMutation.isPending ? 'Saving & Generating Barcodes...' : 'Add Book'}
               </button>
             </form>
           </div>
