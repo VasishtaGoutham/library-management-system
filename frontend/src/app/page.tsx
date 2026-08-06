@@ -20,21 +20,21 @@ export default function Home() {
       <section className="flex-1 flex items-center max-w-7xl w-full mx-auto px-6 py-10 md:py-16 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center w-full">
           
-          {/* Left Column Text & CTAs */}
-          <div className="lg:col-span-6 space-y-6 text-left animate-slide-in-left">
+          {/* Left Column Text & CTAs - Slides in smoothly from Left */}
+          <div className="lg:col-span-6 space-y-6 text-left animate-slide-from-left">
             <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full border text-xs font-semibold hover:scale-105 transition cursor-default" style={{ backgroundColor: 'var(--accent-light)', borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}>
-              <Sparkles className="w-3.5 h-3.5 animate-spin-slow" />
+              <Sparkles className="w-3.5 h-3.5" />
               <span>Welcome to LibraryUniverse</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight animate-fade-in-up" style={{ color: 'var(--text-main)' }}>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight" style={{ color: 'var(--text-main)' }}>
               Your Gateway to <br />
               <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 bg-clip-text text-transparent hover:brightness-125 transition duration-500 inline-block">
                 Endless Knowledge
               </span>
             </h1>
 
-            <p className="text-base leading-relaxed max-w-xl animate-fade-in-up" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-base leading-relaxed max-w-xl" style={{ color: 'var(--text-muted)' }}>
               Discover, reserve, and borrow thousands of books from our extensive collection. Join our community of readers and experience seamless, modern library management.
             </p>
 
@@ -87,8 +87,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Column: Custom Student Library Desk Image */}
-          <div className="lg:col-span-6 relative animate-zoom-in-float">
+          {/* Right Column: Custom Student Library Desk Image - Slides in smoothly from Right */}
+          <div className="lg:col-span-6 relative animate-slide-from-right">
             <div 
               className="hero-image-card relative rounded-3xl p-3 md:p-4 border shadow-2xl overflow-hidden cursor-pointer"
               style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
