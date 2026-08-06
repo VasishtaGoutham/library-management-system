@@ -1,24 +1,30 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
-  if (typeof window !== 'undefined') {
-    return `http://${window.location.hostname}:8080/api/v1`;
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
   }
-  return 'http://localhost:8080/api/v1';
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host.includes('vercel.app') || host.includes('loca.lt')) {
+      return 'https://library-backend-api.loca.lt/api/v1';
+    }
+    return `http://${host}:8080/api/v1`;
+  }
+  return 'https://library-backend-api.loca.lt/api/v1';
 };
 
 const api = axios.create({
   baseURL: getBaseUrl(),
-  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
+    'bypass-tunnel-reminder': 'true',
   },
 });
 
 api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    config.baseURL = `http://${window.location.hostname}:8080/api/v1`;
-  }
+  const currentBaseUrl = getBaseUrl();
+  config.baseURL = currentBaseUrl;
   return config;
 });
 
