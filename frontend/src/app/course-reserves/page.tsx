@@ -31,7 +31,7 @@ const SAMPLE_RESERVES: CourseReserve[] = [
     instructor: 'Prof. Alan Turing',
     semester: 'Fall 2026',
     textbooks: [
-      { title: 'Introduction to Algorithms (CLRS)', author: 'Cormen, Leiserson, Rivest, Stein', isbn: '9780262046305', type: 'Required', availableCopies: 4 },
+      { title: 'Introduction to Algorithms', author: 'Thomas H. Cormen, Charles E. Leiserson', isbn: '9780262033848', type: 'Required', availableCopies: 4 },
       { title: 'Clean Code: A Handbook of Agile Software Craftsmanship', author: 'Robert C. Martin', isbn: '9780132350884', type: 'Recommended', availableCopies: 2 },
     ],
   },
@@ -42,7 +42,8 @@ const SAMPLE_RESERVES: CourseReserve[] = [
     instructor: 'Dr. Nikola Tesla',
     semester: 'Fall 2026',
     textbooks: [
-      { title: 'Fundamentals of Engineering Thermodynamics', author: 'Michael J. Moran', isbn: '9781119391388', type: 'Required', availableCopies: 5 },
+      { title: 'Fundamentals of Thermodynamics', author: 'Claus Borgnakke, Richard E. Sonntag', isbn: '9781118131992', type: 'Required', availableCopies: 3 },
+      { title: 'Fluid Mechanics', author: 'Frank M. White', isbn: '9780073398273', type: 'Recommended', availableCopies: 3 },
     ],
   },
   {
@@ -52,7 +53,8 @@ const SAMPLE_RESERVES: CourseReserve[] = [
     instructor: 'Prof. James Maxwell',
     semester: 'Fall 2026',
     textbooks: [
-      { title: 'Digital Design: With an Introduction to Verilog HDL', author: 'M. Morris Mano', isbn: '9780132774208', type: 'Required', availableCopies: 3 },
+      { title: 'Digital Design: With an Introduction to Verilog HDL', author: 'M. Morris Mano, Michael D. Ciletti', isbn: '9780132774208', type: 'Required', availableCopies: 4 },
+      { title: 'Microelectronic Circuits', author: 'Adel S. Sedra, Kenneth C. Smith', isbn: '9780190853464', type: 'Recommended', availableCopies: 4 },
     ],
   },
   {
@@ -62,7 +64,8 @@ const SAMPLE_RESERVES: CourseReserve[] = [
     instructor: 'Dr. Carl Gauss',
     semester: 'Fall 2026',
     textbooks: [
-      { title: 'Probability & Statistics for Engineers', author: 'Ronald E. Walpole', isbn: '9780321629111', type: 'Required', availableCopies: 6 },
+      { title: 'Probability and Statistics for Engineers & Scientists', author: 'Ronald E. Walpole, Raymond H. Myers', isbn: '9780321629111', type: 'Required', availableCopies: 3 },
+      { title: 'Hands-On Machine Learning with Scikit-Learn, Keras, & TensorFlow', author: 'Aurelien Geron', isbn: '9781492032649', type: 'Recommended', availableCopies: 4 },
     ],
   },
 ];
@@ -183,7 +186,7 @@ export default function CourseReservesPage() {
                           {tb.availableCopies} Copies Available in Library
                         </span>
                         <Link
-                          href={`/catalog?search=${encodeURIComponent(tb.title.split(':')[0].split('(')[0].trim())}`}
+                          href={`/catalog?search=${encodeURIComponent(tb.isbn)}`}
                           className="text-xs font-bold text-indigo-400 hover:underline flex items-center gap-1"
                         >
                           <span>Locate in Catalog</span>
