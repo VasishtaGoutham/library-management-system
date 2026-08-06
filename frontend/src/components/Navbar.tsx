@@ -66,14 +66,16 @@ export default function Navbar() {
         </Link>
 
         {/* Center Navigation Links */}
-        <div className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          <Link
-            href="/"
-            className={`transition ${pathname === '/' ? 'font-bold' : 'hover:opacity-80'}`}
-            style={{ color: pathname === '/' ? 'var(--accent-color)' : 'var(--text-main)' }}
-          >
-            Home
-          </Link>
+        <div className="hidden md:flex items-center space-x-6 text-xs font-medium">
+          {!user && (
+            <Link
+              href="/"
+              className={`transition ${pathname === '/' ? 'font-bold' : 'hover:opacity-80'}`}
+              style={{ color: pathname === '/' ? 'var(--accent-color)' : 'var(--text-main)' }}
+            >
+              Home
+            </Link>
+          )}
 
           <Link
             href="/catalog"
@@ -83,21 +85,25 @@ export default function Navbar() {
             Browse Books
           </Link>
 
-          <a
-            href="/#about"
-            className="transition hover:opacity-80"
-            style={{ color: 'var(--text-main)' }}
-          >
-            About
-          </a>
+          {!user && (
+            <>
+              <a
+                href="/#about"
+                className="transition hover:opacity-80"
+                style={{ color: 'var(--text-main)' }}
+              >
+                About
+              </a>
 
-          <a
-            href="/#contact"
-            className="transition hover:opacity-80"
-            style={{ color: 'var(--text-main)' }}
-          >
-            Contact
-          </a>
+              <a
+                href="/#contact"
+                className="transition hover:opacity-80"
+                style={{ color: 'var(--text-main)' }}
+              >
+                Contact
+              </a>
+            </>
+          )}
 
           {user?.role === 'ROLE_ADMIN' && (
             <Link
