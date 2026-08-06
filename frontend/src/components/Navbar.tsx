@@ -106,6 +106,22 @@ export default function Navbar() {
             Browse Books
           </Link>
 
+          <Link
+            href="/study-spaces"
+            className={`transition ${pathname === '/study-spaces' ? 'font-bold' : 'hover:opacity-80'}`}
+            style={{ color: pathname === '/study-spaces' ? 'var(--accent-color)' : 'var(--text-main)' }}
+          >
+            Study Rooms
+          </Link>
+
+          <Link
+            href="/course-reserves"
+            className={`transition ${pathname === '/course-reserves' ? 'font-bold' : 'hover:opacity-80'}`}
+            style={{ color: pathname === '/course-reserves' ? 'var(--accent-color)' : 'var(--text-main)' }}
+          >
+            Course Reserves
+          </Link>
+
           {!user && (
             <>
               <a
