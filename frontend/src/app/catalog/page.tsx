@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import Navbar from '@/components/Navbar';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -52,12 +52,22 @@ interface BookRatingSummary {
   reviews: Review[];
 }
 
-export default function CatalogPage() {
+function CatalogContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
 
-  const [search, setSearch] = useState('');
+  const initialSearch = searchParams?.get('search') || '';
+  const [search, setSearch] = useState(initialSearch);
+
+  useEffect(() => {
+    const q = searchParams?.get('search');
+    if (q !== null && q !== undefined) {
+      setSearch(q);
+    }
+  }, [searchParams]);
+
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [barcodeModalBook, setBarcodeModalBook] = useState<Book | null>(null);
@@ -68,8 +78,6 @@ export default function CatalogPage() {
   const [userComment, setUserComment] = useState<string>('');
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [reviewMessage, setReviewMessage] = useState<string | null>(null);
-
-
 
   // Fetch Categories
   const { data: rawCategories } = useQuery({
@@ -95,12 +103,10 @@ export default function CatalogPage() {
   });
   const books: Book[] = Array.isArray(rawBooks)
     ? rawBooks
-    : Array.isArray(rawBooks?.content)
-    ? rawBooks.content
-    : [];
+    : (rawBooks?.content || []);
 
-  // Fetch Barcodes for selected modal book
-  const { data: rawBookCopies } = useQuery({
+  // Fetch Physical Book Copies
+  const { data: bookCopies = [], isLoading: isLoadingCopies } = useQuery({
     queryKey: ['book-copies', barcodeModalBook?.id],
     queryFn: async () => {
       if (!barcodeModalBook) return [];
@@ -109,9 +115,8 @@ export default function CatalogPage() {
     },
     enabled: !!barcodeModalBook,
   });
-  const bookCopies = Array.isArray(rawBookCopies) ? rawBookCopies : [];
 
-  // Fetch Reviews & Ratings for selected book
+  // Fetch Book Rating & Reviews
   const { data: ratingSummary, refetch: refetchReviews } = useQuery<BookRatingSummary>({
     queryKey: ['book-reviews', selectedBook?.id],
     queryFn: async () => {
@@ -161,11 +166,9 @@ export default function CatalogPage() {
   // Delete Review Mutation
   const deleteReviewMutation = useMutation({
     mutationFn: async (reviewId: number) => {
-      if (!selectedBook) return;
-      await api.delete(`/books/${selectedBook.id}/reviews/${reviewId}`);
+      await api.delete(`/reviews/${reviewId}`);
     },
     onSuccess: () => {
-      setReviewMessage('Review deleted.');
       refetchReviews();
       queryClient.invalidateQueries({ queryKey: ['book-reviews'] });
     },
@@ -218,14 +221,10 @@ export default function CatalogPage() {
         <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none text-xs">
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`px-3.5 py-1.5 rounded-xl font-medium transition flex items-center space-x-1.5 whitespace-nowrap ${
-              selectedCategory === null ? 'text-white shadow-sm' : 'border opacity-80 hover:opacity-100'
+            className={`px-4 py-2 rounded-xl font-bold transition flex items-center space-x-1.5 shrink-0 ${
+              selectedCategory === null ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
             }`}
-            style={{
-              backgroundColor: selectedCategory === null ? 'var(--accent-color)' : 'var(--card-bg)',
-              borderColor: 'var(--card-border)',
-              color: selectedCategory === null ? '#fff' : 'var(--text-main)',
-            }}
+            style={selectedCategory !== null ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-main)', border: '1px solid var(--card-border)' } : {}}
           >
             <Filter className="w-3.5 h-3.5" />
             <span>All Categories</span>
@@ -234,15 +233,11 @@ export default function CatalogPage() {
           {categories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setSelectedCategory(cat.id === selectedCategory ? null : cat.id)}
-              className={`px-3.5 py-1.5 rounded-xl font-medium transition whitespace-nowrap border ${
-                selectedCategory === cat.id ? 'text-white shadow-sm' : 'opacity-80 hover:opacity-100'
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-4 py-2 rounded-xl font-medium transition shrink-0 ${
+                selectedCategory === cat.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
               }`}
-              style={{
-                backgroundColor: selectedCategory === cat.id ? 'var(--accent-color)' : 'var(--card-bg)',
-                borderColor: 'var(--card-border)',
-                color: selectedCategory === cat.id ? '#fff' : 'var(--text-main)',
-              }}
+              style={selectedCategory !== cat.id ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-muted)', border: '1px solid var(--card-border)' } : {}}
             >
               {cat.name}
             </button>
@@ -291,30 +286,32 @@ export default function CatalogPage() {
                       />
                     ) : (
                       <div className="text-center p-4">
-                        <BookOpen className="w-12 h-12 mx-auto mb-2 text-indigo-400 opacity-50" />
-                        <span className="text-xs font-bold text-slate-400">{book.categoryName || 'General'}</span>
+                        <BookOpen className="w-10 h-10 mx-auto text-slate-600 mb-2" />
+                        <span className="text-[10px] text-slate-500 font-mono">No Image Available</span>
                       </div>
                     )}
 
                     {/* Stock Status Badge */}
                     <div className="absolute top-3 left-3">
                       {book.availableCopies > 0 ? (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/90 text-white shadow-md backdrop-blur-md flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> {book.availableCopies} Available
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/90 text-white shadow-md backdrop-blur-md flex items-center space-x-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>{book.availableCopies} AVAILABLE</span>
                         </span>
                       ) : (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/90 text-white shadow-md backdrop-blur-md flex items-center gap-1">
-                          <XCircle className="w-3 h-3" /> Checked Out
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-rose-500/90 text-white shadow-md backdrop-blur-md flex items-center space-x-1">
+                          <XCircle className="w-3 h-3" />
+                          <span>OUT OF STOCK</span>
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {/* Book Info */}
-                  <div className="p-4 space-y-2">
+                  {/* Book Info Header */}
+                  <div className="p-4 space-y-1.5">
                     <div className="flex items-center justify-between text-[11px]" style={{ color: 'var(--text-muted)' }}>
                       <span className="font-semibold text-emerald-400">{book.categoryName || 'General'}</span>
-                      <span className="font-mono">ISBN: {book.isbn}</span>
+                      <span className="font-mono text-[10px]">ISBN: {book.isbn}</span>
                     </div>
 
                     <h2 className="font-bold text-sm line-clamp-1 group-hover:text-indigo-400 transition" style={{ color: 'var(--text-main)' }}>
@@ -378,204 +375,182 @@ export default function CatalogPage() {
             
             {/* Close Button */}
             <button
-              onClick={() => {
-                setSelectedBook(null);
-                setReviewMessage(null);
-              }}
-              className="absolute right-4 top-4 text-slate-400 hover:text-white p-1 rounded-lg"
+              onClick={() => setSelectedBook(null)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white transition"
+              style={{ backgroundColor: 'var(--bg-color)' }}
             >
               <X className="w-5 h-5" />
             </button>
 
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-5 border-b pb-4" style={{ borderColor: 'var(--card-border)' }}>
-              <div className="w-24 h-32 rounded-xl bg-slate-900 overflow-hidden flex-shrink-0 border" style={{ borderColor: 'var(--card-border)' }}>
-                {selectedBook.coverImageUrl ? (
-                  <img src={selectedBook.coverImageUrl} alt={selectedBook.title} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center"><BookOpen className="w-8 h-8 text-slate-500" /></div>
-                )}
-              </div>
-
-              <div className="space-y-1.5 flex-1">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  {selectedBook.categoryName || 'General'}
+            {/* Header Details */}
+            <div className="flex items-start space-x-4 border-b pb-4" style={{ borderColor: 'var(--card-border)' }}>
+              {selectedBook.coverImageUrl && (
+                <img src={selectedBook.coverImageUrl} alt={selectedBook.title} className="w-20 h-28 object-cover rounded-xl shadow-md shrink-0" />
+              )}
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase font-bold text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+                  {selectedBook.categoryName}
                 </span>
-                <h2 className="text-lg font-extrabold">{selectedBook.title}</h2>
-                <p className="text-xs text-slate-400">by <strong className="text-white">{selectedBook.author}</strong></p>
-                <div className="flex items-center space-x-3 text-[11px] text-slate-400 pt-1 font-mono">
-                  <span>ISBN: {selectedBook.isbn}</span>
-                  <span>Year: {selectedBook.publicationYear || '2026'}</span>
-                  <span>Lang: {selectedBook.language || 'English'}</span>
+                <h3 className="font-extrabold text-lg" style={{ color: 'var(--text-main)' }}>{selectedBook.title}</h3>
+                <p className="text-xs text-slate-400">by <strong>{selectedBook.author}</strong></p>
+                <div className="flex items-center space-x-2 text-xs pt-1">
+                  <div className="flex items-center text-amber-400 font-bold">
+                    <Star className="w-4 h-4 fill-amber-400 mr-1" />
+                    <span>{ratingSummary?.averageRating ? ratingSummary.averageRating.toFixed(1) : 'No Ratings'}</span>
+                  </div>
+                  <span className="text-slate-500">•</span>
+                  <span className="text-slate-400">{ratingSummary?.totalReviews || 0} Student Reviews</span>
                 </div>
               </div>
             </div>
 
-            {/* Ratings & Reviews Section */}
-            <div className="space-y-4">
-              
-              {/* Rating Header */}
-              <div className="flex items-center justify-between bg-slate-900/60 p-4 rounded-xl border" style={{ borderColor: 'var(--card-border)' }}>
-                <div>
-                  <h3 className="font-bold text-xs flex items-center gap-1.5">
-                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                    <span>Student Ratings & Community Reviews</span>
-                  </h3>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {ratingSummary?.totalReviews || 0} Total Reviews
+            {/* Submit Review Box */}
+            {user ? (
+              <div className="p-4 rounded-xl border space-y-3" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
+                <h4 className="font-bold text-xs flex items-center space-x-1.5" style={{ color: 'var(--text-main)' }}>
+                  <MessageSquare className="w-4 h-4 text-indigo-400" />
+                  <span>Write a Student Review & Rating</span>
+                </h4>
+
+                {reviewMessage && (
+                  <p className={`text-xs font-bold ${reviewMessage.includes('Thank') ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {reviewMessage}
                   </p>
+                )}
+
+                {/* Interactive Star Selector */}
+                <div className="flex items-center space-x-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setUserRating(star)}
+                      onMouseEnter={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      className="p-1 transition"
+                    >
+                      <Star
+                        className={`w-5 h-5 ${
+                          (hoverRating || userRating) >= star
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-slate-600'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="text-xs font-bold text-slate-400 ml-2">{userRating} / 5 Stars</span>
                 </div>
 
-                <div className="text-right">
-                  <span className="text-2xl font-black text-amber-400">{ratingSummary?.averageRating || 0.0}</span>
-                  <span className="text-xs text-slate-400 font-bold"> / 5.0</span>
-                </div>
-              </div>
-
-              {/* Notification Banner */}
-              {reviewMessage && (
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center justify-between">
-                  <span>{reviewMessage}</span>
-                  <button onClick={() => setReviewMessage(null)} className="font-bold">×</button>
-                </div>
-              )}
-
-              {/* Write Review Form */}
-              {user && (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    submitReviewMutation.mutate();
-                  }}
-                  className="p-4 rounded-xl border space-y-3"
-                  style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-300">Rate this book:</span>
-                    
-                    {/* Star Rating Input */}
-                    <div className="flex items-center space-x-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          type="button"
-                          key={star}
-                          onClick={() => setUserRating(star)}
-                          onMouseEnter={() => setHoverRating(star)}
-                          onMouseLeave={() => setHoverRating(0)}
-                          className="p-1 transition hover:scale-125"
-                        >
-                          <Star
-                            className={`w-5 h-5 ${
-                              star <= (hoverRating || userRating)
-                                ? 'text-amber-400 fill-amber-400'
-                                : 'text-slate-600'
-                            }`}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
+                <div className="flex items-center space-x-2">
                   <textarea
                     rows={2}
-                    placeholder="Write your review or feedback for fellow students..."
+                    placeholder="Share your thoughts about this book..."
                     value={userComment}
                     onChange={(e) => setUserComment(e.target.value)}
-                    required
-                    className="w-full p-3 rounded-xl border text-xs focus:outline-none"
+                    className="w-full px-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
                     style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
                   />
-
                   <button
-                    type="submit"
+                    onClick={() => submitReviewMutation.mutate()}
                     disabled={submitReviewMutation.isPending}
-                    className="w-full py-2 rounded-xl text-xs font-bold text-white transition flex items-center justify-center space-x-2 shadow-md bg-amber-500 hover:bg-amber-400"
+                    className="px-4 py-3 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center space-x-1 shrink-0"
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>Submit Student Review</span>
+                    <span>Post</span>
                   </button>
-                </form>
-              )}
-
-              {/* Reviews List */}
-              <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
-                {(!ratingSummary?.reviews || !Array.isArray(ratingSummary.reviews) || ratingSummary.reviews.length === 0) ? (
-                  <p className="text-center py-6 text-xs text-slate-500">No student reviews yet. Be the first to leave a review!</p>
-                ) : (
-                  ratingSummary.reviews.map((rev) => (
-                    <div key={rev.id} className="p-3.5 rounded-xl border space-y-1.5 text-xs" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-[10px]">
-                            {rev.studentName ? rev.studentName[0].toUpperCase() : 'S'}
-                          </div>
-                          <span className="font-bold text-slate-200">{rev.studentName}</span>
-                        </div>
-
-                        <div className="flex items-center space-x-2">
-                          <div className="flex items-center space-x-0.5">
-                            {[1, 2, 3, 4, 5].map((s) => (
-                              <Star
-                                key={s}
-                                className={`w-3 h-3 ${s <= rev.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-700'}`}
-                              />
-                            ))}
-                          </div>
-
-                          {(user?.id === rev.studentId || user?.role === 'ROLE_ADMIN') && (
-                            <button
-                              onClick={() => deleteReviewMutation.mutate(rev.id)}
-                              className="text-slate-500 hover:text-rose-500 p-0.5"
-                              title="Delete Review"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <p className="text-slate-300 leading-relaxed text-[11px]">{rev.comment}</p>
-                    </div>
-                  ))
-                )}
+                </div>
               </div>
+            ) : (
+              <p className="text-xs text-slate-400 italic">Please log in to write a review.</p>
+            )}
 
+            {/* Community Reviews List */}
+            <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+              <h4 className="font-bold text-xs text-slate-400 uppercase tracking-wider">Student Reviews</h4>
+              {ratingSummary?.reviews.length === 0 ? (
+                <p className="text-xs text-slate-500 italic py-2">No reviews yet. Be the first student to review this book!</p>
+              ) : (
+                ratingSummary?.reviews.map((rev) => (
+                  <div key={rev.id} className="p-3 rounded-xl border text-xs space-y-1 relative" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold" style={{ color: 'var(--text-main)' }}>{rev.studentName}</span>
+                      <div className="flex items-center text-amber-400">
+                        {[...Array(rev.rating)].map((_, i) => (
+                          <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-slate-300 text-[11px] leading-relaxed">{rev.comment}</p>
+
+                    {user && (user.id === rev.studentId || user.role === 'ROLE_ADMIN') && (
+                      <button
+                        onClick={() => deleteReviewMutation.mutate(rev.id)}
+                        className="text-[10px] text-rose-400 hover:underline flex items-center space-x-0.5 pt-1 font-semibold"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete</span>
+                      </button>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
 
           </div>
         </div>
       )}
 
-      {/* Barcode Modal */}
+      {/* Barcode Scanner Modal */}
       {barcodeModalBook && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="border rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 relative" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <button onClick={() => setBarcodeModalBook(null)} className="absolute right-4 top-4 text-slate-400 hover:text-white p-1 rounded-lg">
-              <X className="w-5 h-5" />
-            </button>
+            
+            <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--card-border)' }}>
+              <div>
+                <h3 className="font-bold text-sm" style={{ color: 'var(--text-main)' }}>{barcodeModalBook.title}</h3>
+                <span className="text-xs text-slate-400">Physical Shelf Copies & Barcodes</span>
+              </div>
+              <button onClick={() => setBarcodeModalBook(null)} className="text-slate-400 hover:text-white p-1 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-            <h3 className="font-extrabold text-sm flex items-center gap-2">
-              <QrCode className="w-4 h-4" style={{ color: 'var(--accent-color)' }} />
-              <span>Physical Barcodes for "{barcodeModalBook.title}"</span>
-            </h3>
-
-            <div className="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs">
-              {bookCopies.length === 0 ? (
-                <p className="text-slate-400 text-center py-4">No copies registered.</p>
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {isLoadingCopies ? (
+                <p className="text-xs text-slate-400 py-4 text-center">Loading barcodes...</p>
+              ) : bookCopies.length === 0 ? (
+                <p className="text-xs text-slate-400 py-4 text-center">No physical copy barcodes generated yet.</p>
               ) : (
                 bookCopies.map((copy: any) => (
-                  <div key={copy.id} className="p-3 rounded-xl border flex items-center justify-between" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
+                  <div
+                    key={copy.id}
+                    className="p-3 rounded-xl border flex items-center justify-between text-xs"
+                    style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}
+                  >
                     <div>
-                      <span className="font-mono font-bold text-emerald-400">{copy.barcode}</span>
-                      <span className="block text-[10px] text-slate-400">Rack: {copy.rackLocation || 'Shelf A1'}</span>
+                      <div className="flex items-center space-x-2">
+                        <QrCode className="w-4 h-4 text-indigo-400" />
+                        <span className="font-mono font-bold tracking-wide" style={{ color: 'var(--accent-color)' }}>
+                          {copy.barcode}
+                        </span>
+                      </div>
+                      <span className={`text-[10px] font-bold mt-1 inline-block ${
+                        copy.status === 'AVAILABLE' ? 'text-emerald-400' : 'text-rose-400'
+                      }`}>
+                        Status: {copy.status}
+                      </span>
                     </div>
 
                     <button
                       onClick={() => handleCopyBarcode(copy.barcode)}
-                      className="px-2.5 py-1 rounded-lg border text-[11px] font-medium flex items-center gap-1 hover:opacity-80"
+                      className="p-2 rounded-lg border text-slate-300 hover:text-white transition flex items-center space-x-1 text-[11px]"
                       style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
                     >
-                      {copiedBarcode === copy.barcode ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      {copiedBarcode === copy.barcode ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
                       <span>{copiedBarcode === copy.barcode ? 'Copied' : 'Copy'}</span>
                     </button>
                   </div>
@@ -587,5 +562,25 @@ export default function CatalogPage() {
       )}
 
     </div>
+  );
+}
+
+export default function CatalogPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col font-sans" style={{ backgroundColor: 'var(--bg-color)' }}>
+        <Navbar />
+        <div className="max-w-7xl mx-auto p-6 space-y-6 animate-pulse">
+          <div className="h-20 rounded-xl bg-slate-800/50"></div>
+          <div className="grid grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-80 rounded-xl bg-slate-800/50"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    }>
+      <CatalogContent />
+    </Suspense>
   );
 }
