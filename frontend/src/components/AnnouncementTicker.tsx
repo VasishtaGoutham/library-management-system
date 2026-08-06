@@ -32,7 +32,7 @@ const ANNOUNCEMENTS = [
 
 export default function AnnouncementTicker() {
   return (
-    <div className="w-full bg-gradient-to-r from-indigo-950 via-purple-950 to-slate-950 text-white text-[11px] py-2 border-b border-indigo-500/20 overflow-hidden relative shadow-sm z-40">
+    <div className="w-full bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-800 text-white text-[11px] py-2 border-b border-indigo-500/30 overflow-hidden relative shadow-md z-40">
       <div className="animate-marquee whitespace-nowrap flex items-center space-x-12">
         {/* First Loop */}
         {ANNOUNCEMENTS.map((item, idx) => {
