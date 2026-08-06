@@ -1,0 +1,13 @@
+# Node & Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Java & Gradle
+backend/.gradle/
+backend/build/
+
+# Miscellaneous
+.DS_Store
+*.log
+scratch/

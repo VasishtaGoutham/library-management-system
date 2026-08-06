@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: library-backend
+  datasource:
+    url: jdbc:mysql://localhost:3306/library_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: root
+    password: ${DB_PASSWORD:Boligarla@1}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # Live Gmail SMTP Delivery Configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: vasishtagoutham@gmail.com
+    password: ${GMAIL_APP_PASSWORD:sjjhxsrwqcvdhrna}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
+
+app:
+  jwt:
+    secret: 9a2f8c4e7b1d3f6a9e8c7b4a1d5f2e9a8c7b4a1d5f2e9a8c7b4a1d5f2e9a8c7b
+    expiration-ms: 86400000
+  resend:
+    api-key: ${RESEND_API_KEY:re_demo_key_placeholder}

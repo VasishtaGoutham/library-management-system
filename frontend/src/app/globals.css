@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+:root {
+  /* Default Obsidian Dark (Apple/Vercel) */
+  --bg-color: #090d16;
+  --card-bg: #111827;
+  --card-border: #1f2937;
+  --text-main: #f9fafb;
+  --text-muted: #9ca3af;
+  --accent-color: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-light: rgba(99, 102, 241, 0.12);
+  --header-bg: rgba(9, 13, 22, 0.9);
+}
+
+/* Porcelain Light Mode (Stripe/Notion style) */
+[data-theme='porcelain'] {
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --accent-color: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-light: rgba(37, 99, 235, 0.08);
+  --header-bg: rgba(248, 250, 252, 0.9);
+}
+
+/* Midnight Emerald (Executive Finance) */
+[data-theme='emerald'] {
+  --bg-color: #04120f;
+  --card-bg: #0b221d;
+  --card-border: #153a32;
+  --text-main: #ecfdf5;
+  --text-muted: #6ee7b7;
+  --accent-color: #10b981;
+  --accent-hover: #059669;
+  --accent-light: rgba(16, 185, 129, 0.15);
+  --header-bg: rgba(4, 18, 15, 0.9);
+}
+
+/* Deep Slate & Violet (Modern Tech) */
+[data-theme='violet'] {
+  --bg-color: #0f172a;
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --accent-color: #8b5cf6;
+  --accent-hover: #7c3aed;
+  --accent-light: rgba(139, 92, 246, 0.15);
+  --header-bg: rgba(15, 23, 42, 0.9);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Custom Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Dynamic Theme Card */
+.clean-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clean-card:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Laser Scanner Animation */
+@keyframes laserScan {
+  0% { top: 10%; opacity: 0.4; }
+  50% { top: 85%; opacity: 1; }
+  100% { top: 10%; opacity: 0.4; }
+}
+
+.laser-line {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  height: 2px;
+  background: var(--accent-color);
+  box-shadow: 0 0 10px var(--accent-color);
+  animation: laserScan 2.5s ease-in-out infinite;
+}
