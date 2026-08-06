@@ -110,23 +110,14 @@ export default function Navbar() {
           )}
 
           {user?.role === 'ROLE_STUDENT' && (
-            <>
-              <Link
-                href="/student/dashboard"
-                className="flex items-center space-x-1 font-semibold transition"
-                style={{ color: 'var(--accent-color)' }}
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>My Portal</span>
-              </Link>
-              <Link
-                href="/student/profile"
-                className="flex items-center space-x-1 font-semibold transition text-indigo-400 hover:opacity-80"
-              >
-                <User className="w-4 h-4" />
-                <span>My Profile</span>
-              </Link>
-            </>
+            <Link
+              href="/student/dashboard"
+              className="flex items-center space-x-1 font-semibold transition"
+              style={{ color: 'var(--accent-color)' }}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>My Portal</span>
+            </Link>
           )}
         </div>
 
@@ -174,13 +165,18 @@ export default function Navbar() {
 
           {user ? (
             <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-xl border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-                <User className="w-4 h-4" style={{ color: 'var(--accent-color)' }} />
+              <Link
+                href={user.role === 'ROLE_ADMIN' ? '/admin/dashboard' : '/student/profile'}
+                className="flex items-center space-x-2 px-3 py-1.5 rounded-xl border hover:opacity-80 transition cursor-pointer group"
+                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
+                title="View & Edit My Profile"
+              >
+                <User className="w-4 h-4 transition group-hover:scale-110" style={{ color: 'var(--accent-color)' }} />
                 <div className="text-left hidden sm:block">
-                  <p className="font-semibold text-xs leading-tight" style={{ color: 'var(--text-main)' }}>{user.fullName}</p>
+                  <p className="font-semibold text-xs leading-tight transition group-hover:text-indigo-400" style={{ color: 'var(--text-main)' }}>{user.fullName}</p>
                   <p className="text-[10px] capitalize" style={{ color: 'var(--text-muted)' }}>{user.role === 'ROLE_ADMIN' ? 'Admin' : 'Student'}</p>
                 </div>
-              </div>
+              </Link>
 
               <button
                 onClick={handleLogout}
