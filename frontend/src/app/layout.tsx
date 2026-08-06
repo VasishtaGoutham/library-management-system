@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import QueryProvider from '@/providers/QueryProvider';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Library Universe - Modern Library Management System',
@@ -14,8 +15,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="antialiased min-h-screen bg-[#0b0f19] text-slate-100">
-        <QueryProvider>{children}</QueryProvider>
+      <body className="antialiased min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col justify-between">
+        <QueryProvider>
+          {children}
+          <Footer />
+        </QueryProvider>
       </body>
     </html>
   );
