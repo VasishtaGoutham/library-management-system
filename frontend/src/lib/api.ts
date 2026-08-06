@@ -7,11 +7,11 @@ const getBaseUrl = () => {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
     if (host.includes('vercel.app') || host.includes('loca.lt') || host.includes('lhr.life')) {
-      return 'https://8971a946c73f8d.lhr.life/api/v1';
+      return 'https://library-universe-api-v1.loca.lt/api/v1';
     }
     return `http://${host}:8080/api/v1`;
   }
-  return 'https://8971a946c73f8d.lhr.life/api/v1';
+  return 'https://library-universe-api-v1.loca.lt/api/v1';
 };
 
 const api = axios.create({
