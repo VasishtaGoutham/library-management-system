@@ -109,7 +109,7 @@ public class EmailService {
     }
 
     private void sendResendEmail(String toEmail, String subject, String htmlBody) {
-        String targetRecipient = RESEND_OWNER_EMAIL;
+        String targetRecipient = (toEmail != null && !toEmail.trim().isEmpty()) ? toEmail.trim() : RESEND_OWNER_EMAIL;
 
         log.info("\n=== 🚀 DISPATCHING RESEND API EMAIL ===");
         log.info("To: {}", targetRecipient);
