@@ -27,14 +27,14 @@ export default function Home() {
               <span>Welcome to LibraryUniverse</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight" style={{ color: 'var(--text-main)' }}>
-              Your Gateway to <br />
-              <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 bg-clip-text text-transparent hover:brightness-125 transition duration-500 inline-block">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight transition-transform duration-300 hover:scale-[1.03] origin-left cursor-pointer" style={{ color: 'var(--text-main)' }}>
+              <span className="inline-block transition-transform duration-300 hover:scale-105">Your Gateway to</span> <br />
+              <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 bg-clip-text text-transparent hover:brightness-125 transition-transform duration-300 inline-block hover:scale-105">
                 Endless Knowledge
               </span>
             </h1>
 
-            <p className="text-base leading-relaxed max-w-xl" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-base leading-relaxed max-w-xl transition-all duration-300 hover:scale-105 hover:text-white origin-left cursor-pointer" style={{ color: 'var(--text-muted)' }}>
               Discover, reserve, and borrow thousands of books from our extensive collection. Join our community of readers and experience seamless, modern library management.
             </p>
 
