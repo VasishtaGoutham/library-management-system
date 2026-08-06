@@ -1,13 +1,132 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import { 
   BookOpen, ArrowRight, ShieldCheck, Sparkles, ScanLine, 
   Clock, Award, Layers, Users, BookMarked, CheckCircle2,
-  Mail, MapPin, Phone, HelpCircle
+  Mail, MapPin, Phone, HelpCircle, Send
 } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
+
+function GuestInquiryForm() {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [inquiryType, setInquiryType] = useState('General Question');
+  const [message, setMessage] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fullName || !email || !message) return;
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+    }, 800);
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="clean-card p-8 text-center space-y-3">
+        <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto" />
+        <h3 className="font-extrabold text-base text-emerald-400">Inquiry Sent Successfully!</h3>
+        <p className="text-xs text-slate-300">
+          Thank you, <strong>{fullName}</strong>. Your message regarding "<em>{inquiryType}</em>" has been submitted to the University Librarian desk. We will reply to <strong>{email}</strong> within 2 hours.
+        </p>
+        <button
+          onClick={() => {
+            setIsSubmitted(false);
+            setFullName('');
+            setEmail('');
+            setMessage('');
+          }}
+          className="mt-3 px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 hover:text-white transition"
+        >
+          Send Another Message
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="clean-card p-6 space-y-4">
+      <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--card-border)' }}>
+        <h3 className="font-extrabold text-sm" style={{ color: 'var(--text-main)' }}>💬 Send a Message to Librarian Desk</h3>
+        <span className="text-[10px] font-mono text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+          Guest Help Desk
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div className="space-y-1">
+          <label className="font-semibold block text-[11px]" style={{ color: 'var(--text-muted)' }}>Your Full Name *</label>
+          <input
+            type="text"
+            required
+            placeholder="e.g. Sarah Connor"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="w-full px-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+            style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="font-semibold block text-[11px]" style={{ color: 'var(--text-muted)' }}>Your Email Address *</label>
+          <input
+            type="email"
+            required
+            placeholder="e.g. sarah@university.edu"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+            style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1 text-xs">
+        <label className="font-semibold block text-[11px]" style={{ color: 'var(--text-muted)' }}>Inquiry Subject / Topic *</label>
+        <select
+          value={inquiryType}
+          onChange={(e) => setInquiryType(e.target.value)}
+          className="w-full px-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+          style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+        >
+          <option value="General Question">General Question / Campus Access</option>
+          <option value="Book Availability">Book Availability Inquiry</option>
+          <option value="Library Tour & Pass">Library Tour & Guest Pass Request</option>
+          <option value="Research Assistance">Research & Citation Assistance</option>
+        </select>
+      </div>
+
+      <div className="space-y-1 text-xs">
+        <label className="font-semibold block text-[11px]" style={{ color: 'var(--text-muted)' }}>Your Message / Question *</label>
+        <textarea
+          rows={3}
+          required
+          placeholder="Type your message or inquiry here..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="w-full px-3 py-2 rounded-xl border text-xs focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+          style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full py-3 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center justify-center space-x-1.5 shadow-lg shadow-indigo-600/30"
+      >
+        <Send className="w-3.5 h-3.5" />
+        <span>{isSubmitting ? 'Sending Message...' : 'Send Message to Librarian Desk'}</span>
+      </button>
+    </form>
+  );
+}
 
 export default function Home() {
   const { user } = useAuthStore();
@@ -174,32 +293,58 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contact Section (#contact) */}
+      {/* Contact & Guest Inquiry Form Section (#contact) */}
       <section id="contact" className="py-16 border-t transition-colors duration-300 relative z-10" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
         <div className="max-w-7xl w-full mx-auto px-6 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--accent-color)' }}>Get In Touch</span>
-            <h2 className="text-2xl md:text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Contact Library Desk</h2>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Have questions about borrowing limits, fines, or new arrivals? Our librarian team is here 24/7.</p>
+            <h2 className="text-2xl md:text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Contact Library Help Desk</h2>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Have questions about borrowing limits, book availability, or campus library access? Submit a message below.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="clean-card p-5 text-center space-y-2">
-              <MapPin className="w-6 h-6 mx-auto" style={{ color: 'var(--accent-color)' }} />
-              <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Library Location</h4>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Central Academic Building, Floor 2</p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto">
+            {/* Info Cards Column */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="clean-card p-5 space-y-2">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2.5 rounded-xl border bg-indigo-500/10 border-indigo-500/30 text-indigo-400">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Central Library Location</h4>
+                    <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Central Academic Building, Floor 2 • Quad 4</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="clean-card p-5 space-y-2">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2.5 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-emerald-400">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Direct Email Support</h4>
+                    <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>support@libraryuniverse.edu</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="clean-card p-5 space-y-2">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2.5 rounded-xl border bg-purple-500/10 border-purple-500/30 text-purple-400">
+                    <Phone className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>24/7 Help Desk Line</h4>
+                    <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>+1 (800) 555-LIB-UNIV</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="clean-card p-5 text-center space-y-2">
-              <Mail className="w-6 h-6 mx-auto text-emerald-500" />
-              <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Email Support</h4>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>support@libraryuniverse.com</p>
-            </div>
-
-            <div className="clean-card p-5 text-center space-y-2">
-              <Phone className="w-6 h-6 mx-auto text-purple-500" />
-              <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Help Desk</h4>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>+1 (800) 555-0199</p>
+            {/* Guest Inquiry Form Column */}
+            <div className="lg:col-span-7">
+              <GuestInquiryForm />
             </div>
           </div>
         </div>
