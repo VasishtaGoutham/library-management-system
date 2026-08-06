@@ -175,32 +175,163 @@ export default function Home() {
       </section>
 
       {/* Contact Section (#contact) */}
-      <section id="contact" className="py-16 border-t transition-colors duration-300 relative z-10" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
-        <div className="max-w-7xl w-full mx-auto px-6 space-y-10">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--accent-color)' }}>Get In Touch</span>
-            <h2 className="text-2xl md:text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Contact Library Desk</h2>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Have questions about borrowing limits, fines, or new arrivals? Our librarian team is here 24/7.</p>
+      <section id="contact" className="py-20 border-t transition-colors duration-300 relative z-10" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
+        <div className="max-w-7xl w-full mx-auto px-6 space-y-12">
+          
+          {/* Section Header */}
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold px-3 py-1 rounded-full border text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
+              ⚡ Guest & Visitor Help Desk
+            </span>
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight" style={{ color: 'var(--text-main)' }}>
+              Have a Question? Ask the University Librarian Desk
+            </h2>
+            <p className="text-xs max-w-lg mx-auto leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+              Submit your inquiry about book availability, membership passes, or campus library access. Our librarian team replies within 2 hours.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="clean-card p-5 text-center space-y-2">
-              <MapPin className="w-6 h-6 mx-auto" style={{ color: 'var(--accent-color)' }} />
-              <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Library Location</h4>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Central Academic Building, Floor 2</p>
+          {/* 2-Column High-End Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-6xl mx-auto">
+            
+            {/* Left Column: Interactive Form */}
+            <div className="lg:col-span-7 clean-card p-6 md:p-8 space-y-6 shadow-2xl relative overflow-hidden group/form hover:border-indigo-500/50">
+              <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--card-border)' }}>
+                <div className="flex items-center space-x-2">
+                  <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-extrabold text-base" style={{ color: 'var(--text-main)' }}>Send a Message to Librarian Desk</h3>
+                </div>
+                <span className="text-[10px] font-mono font-bold text-emerald-400 px-2.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+                  Guest Help Desk
+                </span>
+              </div>
+
+              <form onSubmit={(e) => { e.preventDefault(); alert('🎉 Thank you! Your message has been sent to the Head Librarian Desk. We will email you back shortly.'); }} className="space-y-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5 text-left">
+                    <label className="font-bold text-[11px] block" style={{ color: 'var(--text-main)' }}>Your Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Sarah Connor"
+                      className="w-full px-4 py-3 rounded-xl border text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                      style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5 text-left">
+                    <label className="font-bold text-[11px] block" style={{ color: 'var(--text-main)' }}>Your Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. sarah@university.edu"
+                      className="w-full px-4 py-3 rounded-xl border text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                      style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-left">
+                  <label className="font-bold text-[11px] block" style={{ color: 'var(--text-main)' }}>Inquiry Subject / Topic *</label>
+                  <select
+                    className="w-full px-4 py-3 rounded-xl border text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition cursor-pointer"
+                    style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+                  >
+                    <option>General Question / Campus Access</option>
+                    <option>Book Availability & Barcode Request</option>
+                    <option>Hold Reservation & Queue Status</option>
+                    <option>Study Pod & Quiet Room Booking</option>
+                    <option>Faculty & Syllabus Book Requests</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5 text-left">
+                  <label className="font-bold text-[11px] block" style={{ color: 'var(--text-main)' }}>Your Message / Question *</label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Type your message or inquiry here..."
+                    className="w-full px-4 py-3 rounded-xl border text-xs focus:ring-2 focus:ring-indigo-500 outline-none resize-none transition"
+                    style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn-motion w-full py-3.5 rounded-xl font-extrabold text-sm text-white bg-indigo-600 hover:bg-indigo-500 transition shadow-xl shadow-indigo-600/30 flex items-center justify-center space-x-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Send Message to Librarian Desk</span>
+                </button>
+              </form>
             </div>
 
-            <div className="clean-card p-5 text-center space-y-2">
-              <Mail className="w-6 h-6 mx-auto text-emerald-500" />
-              <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Email Support</h4>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>support@libraryuniverse.com</p>
+            {/* Right Column: Desk Info & Staff Live Card */}
+            <div className="lg:col-span-5 space-y-6">
+              
+              {/* Staff Live Status Card */}
+              <div className="clean-card p-6 space-y-5 border-emerald-500/30 shadow-xl relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--card-bg), var(--bg-color))' }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span className="text-xs font-bold text-emerald-400">Desk Staff Online Now</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-400">Response: &lt; 2 Hrs</span>
+                </div>
+
+                <div className="space-y-1 text-left">
+                  <h4 className="font-extrabold text-lg" style={{ color: 'var(--text-main)' }}>Central Campus Help Desk</h4>
+                  <p className="text-xs text-slate-400">Main Academic Building • Floor 2, Quad 4</p>
+                </div>
+
+                <div className="space-y-3 pt-2 border-t text-xs" style={{ borderColor: 'var(--card-border)' }}>
+                  <div className="flex items-center space-x-3 text-left">
+                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold block" style={{ color: 'var(--text-main)' }}>In-Person Desk Hours</span>
+                      <span className="text-[11px] text-slate-400">Mon - Sat: 8:00 AM - 10:00 PM</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3 text-left">
+                    <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+                      <Phone className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold block" style={{ color: 'var(--text-main)' }}>Direct Desk Phone Hotline</span>
+                      <span className="text-[11px] font-mono text-indigo-400">+1 (800) 555-LIB-UNIV</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3 text-left">
+                    <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold block" style={{ color: 'var(--text-main)' }}>Official Library Email</span>
+                      <span className="text-[11px] font-mono text-purple-400">librarian@libraryuniverse.edu</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick FAQ Tip */}
+              <div className="clean-card p-5 text-left space-y-2 border-indigo-500/30">
+                <div className="flex items-center space-x-2 text-indigo-400 font-bold text-xs">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Looking for instant book checkouts?</span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Log in to your student portal to instantly generate physical book barcodes and reserve soundproof study rooms in 1-click!
+                </p>
+              </div>
+
             </div>
 
-            <div className="clean-card p-5 text-center space-y-2">
-              <Phone className="w-6 h-6 mx-auto text-purple-500" />
-              <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Help Desk</h4>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>+1 (800) 555-0199</p>
-            </div>
           </div>
         </div>
       </section>
