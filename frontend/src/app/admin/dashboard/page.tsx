@@ -8,7 +8,7 @@ import BarcodeScannerModal from '@/components/BarcodeScannerModal';
 import { 
   BookOpen, Plus, ScanLine, ArrowDownLeft, ArrowUpRight, 
   DollarSign, AlertTriangle, Layers, Library, CheckCircle2, 
-  X, Barcode, ShieldCheck, RefreshCw, UserCheck, Calendar, Tag, Globe, Bookmark, FileSpreadsheet, Printer, Mail
+  X, Barcode, ShieldCheck, RefreshCw, UserCheck, Calendar, Tag, Globe, Bookmark, FileSpreadsheet, Printer, Mail, Lightbulb
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -122,6 +122,31 @@ export default function AdminDashboardPage() {
     },
   });
   const holds = Array.isArray(rawHolds) ? rawHolds : [];
+
+  // Suggestions Log Query
+  const { data: rawSuggestions = [], refetch: refetchAdminSuggestions } = useQuery({
+    queryKey: ['admin-suggestions'],
+    queryFn: async () => {
+      const res = await api.get('/book-suggestions/all');
+      return res.data;
+    },
+  });
+  const suggestions = Array.isArray(rawSuggestions) ? rawSuggestions : [];
+
+  // Update Suggestion Status Mutation
+  const updateSuggestionStatusMutation = useMutation({
+    mutationFn: async ({ id, status, adminComment }: { id: number; status: string; adminComment?: string }) => {
+      const res = await api.put(`/book-suggestions/${id}/status`, {
+        status,
+        adminComment: adminComment || '',
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      refetchAdminSuggestions();
+      queryClient.invalidateQueries({ queryKey: ['admin-suggestions'] });
+    },
+  });
 
   // Add Category Mutation
   const addCategoryMutation = useMutation({
@@ -327,6 +352,121 @@ export default function AdminDashboardPage() {
           <div className="clean-card p-4 space-y-1">
             <span className="text-[11px] font-medium block" style={{ color: 'var(--text-muted)' }}>Categories</span>
             <p className="text-xl font-extrabold" style={{ color: 'var(--text-main)' }}>{categories.length}</p>
+          </div>
+        </div>
+
+        {/* Student Book Acquisition Requests & Wishlist Table */}
+        <div className="clean-card p-6 space-y-4">
+          <div className="flex items-center justify-between text-xs border-b pb-3" style={{ borderColor: 'var(--card-border)' }}>
+            <span className="font-bold text-sm flex items-center gap-2" style={{ color: 'var(--text-main)' }}>
+              <Lightbulb className="w-4 h-4 text-amber-400" />
+              <span>Student Book Acquisition Requests & Wishlist ({suggestions.length})</span>
+            </span>
+            <span className="text-indigo-400 text-[11px] font-bold">
+              {suggestions.filter((s: any) => s.status === 'PENDING').length} Pending Purchase Suggestions
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs" style={{ color: 'var(--text-main)' }}>
+              <thead className="uppercase font-semibold text-[10px] border-b" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)', color: 'var(--text-muted)' }}>
+                <tr>
+                  <th className="py-2.5 px-3">Req ID</th>
+                  <th className="py-2.5 px-3">Student Name</th>
+                  <th className="py-2.5 px-3">Requested Book Title</th>
+                  <th className="py-2.5 px-3">Author</th>
+                  <th className="py-2.5 px-3">Reason / Notes</th>
+                  <th className="py-2.5 px-3">Date</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
+                {suggestions.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="py-6 text-center" style={{ color: 'var(--text-muted)' }}>
+                      No student book purchase requests submitted yet.
+                    </td>
+                  </tr>
+                ) : (
+                  suggestions.map((sug: any) => (
+                    <tr key={sug.id} className="hover:opacity-80 transition">
+                      <td className="py-2.5 px-3 font-mono" style={{ color: 'var(--text-muted)' }}>#{sug.id}</td>
+                      <td className="py-2.5 px-3 font-semibold" style={{ color: 'var(--text-main)' }}>
+                        <div>{sug.studentName}</div>
+                        <div className="text-[10px] text-slate-400">{sug.studentEmail}</div>
+                      </td>
+                      <td className="py-2.5 px-3 font-bold" style={{ color: 'var(--text-main)' }}>{sug.title}</td>
+                      <td className="py-2.5 px-3" style={{ color: 'var(--text-muted)' }}>{sug.author}</td>
+                      <td className="py-2.5 px-3 text-[11px]" style={{ color: 'var(--text-muted)' }}>{sug.reason || '-'}</td>
+                      <td className="py-2.5 px-3" style={{ color: 'var(--text-muted)' }}>
+                        {sug.createdAt ? sug.createdAt.split('T')[0] : '-'}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold border ${
+                          sug.status === 'ACQUIRED'
+                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                            : sug.status === 'APPROVED'
+                            ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30'
+                            : sug.status === 'REJECTED'
+                            ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                            : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                        }`}>
+                          {sug.status}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 space-x-1">
+                        {sug.status === 'PENDING' && (
+                          <>
+                            <button
+                              onClick={() => updateSuggestionStatusMutation.mutate({ id: sug.id, status: 'APPROVED', adminComment: 'Order placed with book vendor.' })}
+                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition"
+                              title="Approve request and place order"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => {
+                                setTitle(sug.title);
+                                setAuthor(sug.author);
+                                setIsbn(sug.isbn || '');
+                                setIsAddBookOpen(true);
+                                updateSuggestionStatusMutation.mutate({ id: sug.id, status: 'ACQUIRED', adminComment: 'Book acquired and added to catalog!' });
+                              }}
+                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition"
+                              title="Mark acquired and add directly to catalog"
+                            >
+                              Acquired
+                            </button>
+                            <button
+                              onClick={() => updateSuggestionStatusMutation.mutate({ id: sug.id, status: 'REJECTED', adminComment: 'Currently not within acquisition scope.' })}
+                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-600/30 hover:bg-rose-600/50 text-rose-300 transition"
+                              title="Reject request"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                        {sug.status === 'APPROVED' && (
+                          <button
+                            onClick={() => {
+                              setTitle(sug.title);
+                              setAuthor(sug.author);
+                              setIsbn(sug.isbn || '');
+                              setIsAddBookOpen(true);
+                              updateSuggestionStatusMutation.mutate({ id: sug.id, status: 'ACQUIRED', adminComment: 'Book acquired and added to catalog!' });
+                            }}
+                            className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition"
+                          >
+                            Mark Acquired
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 

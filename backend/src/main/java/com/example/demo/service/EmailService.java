@@ -127,6 +127,26 @@ public class EmailService {
         sendResendEmail(studentEmail, subject, htmlContent);
     }
 
+    public void sendSuggestionStatusNotification(String studentEmail, String studentName, String bookTitle, String status, String adminComment) {
+        String subject = "📖 Update on your Book Request: " + bookTitle;
+        String statusColor = "APPROVED".equalsIgnoreCase(status) || "ACQUIRED".equalsIgnoreCase(status) ? "#10b981" : "#f43f5e";
+        
+        String htmlContent = String.format(
+            "<div style='font-family: Arial, sans-serif; padding: 20px; background-color: #0f172a; color: #f8fafc; border-radius: 10px;'>" +
+            "<h2 style='color: #6366f1;'>Library Acquisition Update 📚</h2>" +
+            "<p>Dear <strong>%s</strong>,</p>" +
+            "<p>Your book purchase request for <strong>\"%s\"</strong> has been updated to:</p>" +
+            "<p style='font-size: 18px; font-weight: bold; color: %s;'>%s</p>" +
+            "%s" +
+            "<p style='color: #94a3b8; font-size: 12px; margin-top: 20px;'>Library Management System © 2026</p>" +
+            "</div>",
+            studentName, bookTitle, statusColor, status,
+            (adminComment != null && !adminComment.trim().isEmpty()) ? "<p style='background-color: #1e293b; padding: 10px; border-radius: 5px;'>Librarian Note: " + adminComment + "</p>" : ""
+        );
+
+        sendResendEmail(studentEmail, subject, htmlContent);
+    }
+
     private void sendResendEmail(String toEmail, String subject, String htmlBody) {
         String targetRecipient = (toEmail != null && !toEmail.trim().isEmpty()) ? toEmail.trim() : RESEND_OWNER_EMAIL;
 

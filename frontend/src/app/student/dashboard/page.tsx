@@ -1,17 +1,26 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import Navbar from '@/components/Navbar';
 import { useAuthStore } from '@/store/useAuthStore';
 import { 
   BookOpen, Clock, AlertTriangle, DollarSign, CheckCircle2, 
-  Calendar, Barcode, BookMarked, Bookmark, X, RefreshCw
+  Calendar, Barcode, BookMarked, Bookmark, X, RefreshCw, Plus, Sparkles, Lightbulb
 } from 'lucide-react';
 
 export default function StudentDashboardPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+
+  // Book Suggestion Modal State
+  const [isSuggestModalOpen, setIsSuggestModalOpen] = useState(false);
+  const [sugTitle, setSugTitle] = useState('');
+  const [sugAuthor, setSugAuthor] = useState('');
+  const [sugIsbn, setSugIsbn] = useState('');
+  const [sugReason, setSugReason] = useState('');
+  const [sugMessage, setSugMessage] = useState('');
 
   // Fetch Student Borrowings
   const { data: borrowings = [], isLoading } = useQuery({
@@ -32,6 +41,16 @@ export default function StudentDashboardPage() {
   });
   const myHolds = Array.isArray(rawHolds) ? rawHolds : [];
 
+  // Fetch Student Book Suggestions
+  const { data: rawSuggestions = [], refetch: refetchSuggestions } = useQuery({
+    queryKey: ['student-my-suggestions'],
+    queryFn: async () => {
+      const res = await api.get('/book-suggestions/my');
+      return res.data;
+    },
+  });
+  const mySuggestions = Array.isArray(rawSuggestions) ? rawSuggestions : [];
+
   const cancelHoldMutation = useMutation({
     mutationFn: async (holdId: number) => {
       await api.delete(`/holds/${holdId}`);
@@ -39,6 +58,38 @@ export default function StudentDashboardPage() {
     onSuccess: () => {
       refetchHolds();
       queryClient.invalidateQueries({ queryKey: ['student-my-holds'] });
+    },
+  });
+
+  // Submit Book Suggestion Mutation
+  const createSuggestionMutation = useMutation({
+    mutationFn: async () => {
+      if (!sugTitle.trim() || !sugAuthor.trim()) {
+        throw new Error('Title and Author are required');
+      }
+      const res = await api.post('/book-suggestions', {
+        title: sugTitle,
+        author: sugAuthor,
+        isbn: sugIsbn,
+        reason: sugReason,
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      setSugTitle('');
+      setSugAuthor('');
+      setSugIsbn('');
+      setSugReason('');
+      setSugMessage('🎉 Book purchase suggestion submitted to the Library Acquisition team!');
+      refetchSuggestions();
+      queryClient.invalidateQueries({ queryKey: ['student-my-suggestions'] });
+      setTimeout(() => {
+        setIsSuggestModalOpen(false);
+        setSugMessage('');
+      }, 2000);
+    },
+    onError: (err: any) => {
+      setSugMessage(err.message || err.response?.data?.message || 'Failed to submit request');
     },
   });
 
@@ -88,21 +139,22 @@ export default function StudentDashboardPage() {
               Welcome back, {user?.fullName || 'Student'}! 👋
             </h1>
             <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-              Track active check-outs, upcoming due dates, book holds, and return history.
+              Track active check-outs, book holds, return history, and request new books for acquisition.
             </p>
           </div>
 
           <div className="flex items-center space-x-3 text-xs">
+            <button
+              onClick={() => setIsSuggestModalOpen(true)}
+              className="px-4 py-2 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center space-x-1.5 shadow-lg shadow-indigo-600/20"
+            >
+              <Lightbulb className="w-4 h-4 text-amber-300" />
+              <span>Suggest New Book</span>
+            </button>
+
             <div className="px-4 py-2 rounded-xl border text-center" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
               <span className="text-[10px] uppercase text-slate-400 block font-bold">Active Loans</span>
               <span className="text-sm font-extrabold" style={{ color: 'var(--accent-color)' }}>{activeLoans.length} / 3</span>
-            </div>
-
-            <div className="px-4 py-2 rounded-xl border text-center" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-              <span className="text-[10px] uppercase text-slate-400 block font-bold">Total Fines</span>
-              <span className={`text-sm font-extrabold ${totalFine > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
-                ${totalFine.toFixed(2)}
-              </span>
             </div>
           </div>
         </div>
@@ -130,22 +182,22 @@ export default function StudentDashboardPage() {
           </div>
 
           <div className="p-4 rounded-xl border flex items-center space-x-3" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-400">
+              <Lightbulb className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400">My Book Requests</span>
+              <span className="text-base font-extrabold block text-emerald-400">{mySuggestions.length} Total</span>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl border flex items-center space-x-3" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <div className="p-3 rounded-lg bg-rose-500/10 text-rose-400">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400">Overdue Books</span>
               <span className="text-base font-extrabold block text-rose-500">{overdueCount}</span>
-            </div>
-          </div>
-
-          <div className="p-4 rounded-xl border flex items-center space-x-3" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-400">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400">Returned History</span>
-              <span className="text-base font-extrabold block text-emerald-400">{pastLoans.length}</span>
             </div>
           </div>
         </div>
@@ -208,6 +260,73 @@ export default function StudentDashboardPage() {
               })}
             </div>
           )}
+        </div>
+
+        {/* My Requested Books for Library Purchase */}
+        <div className="clean-card p-6 space-y-4">
+          <div className="flex items-center justify-between text-xs border-b pb-3" style={{ borderColor: 'var(--card-border)' }}>
+            <span className="font-bold text-sm flex items-center gap-2" style={{ color: 'var(--text-main)' }}>
+              <Lightbulb className="w-4 h-4 text-amber-400" />
+              <span>My Requested Books for Library Acquisition ({mySuggestions.length})</span>
+            </span>
+            <button
+              onClick={() => setIsSuggestModalOpen(true)}
+              className="text-xs font-bold text-indigo-400 hover:underline flex items-center gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" /> Request a New Book
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs" style={{ color: 'var(--text-main)' }}>
+              <thead className="uppercase font-semibold text-[10px] border-b" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)', color: 'var(--text-muted)' }}>
+                <tr>
+                  <th className="py-2.5 px-3">Requested Book</th>
+                  <th className="py-2.5 px-3">Author</th>
+                  <th className="py-2.5 px-3">Reason / Notes</th>
+                  <th className="py-2.5 px-3">Submitted</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3">Librarian Note</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
+                {mySuggestions.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-6 text-center" style={{ color: 'var(--text-muted)' }}>
+                      You haven't requested any new books for library purchase yet.
+                    </td>
+                  </tr>
+                ) : (
+                  mySuggestions.map((sug: any) => (
+                    <tr key={sug.id} className="hover:opacity-80 transition">
+                      <td className="py-2.5 px-3 font-bold" style={{ color: 'var(--text-main)' }}>{sug.title}</td>
+                      <td className="py-2.5 px-3" style={{ color: 'var(--text-muted)' }}>{sug.author}</td>
+                      <td className="py-2.5 px-3 text-[11px]" style={{ color: 'var(--text-muted)' }}>{sug.reason || '-'}</td>
+                      <td className="py-2.5 px-3" style={{ color: 'var(--text-muted)' }}>
+                        {sug.createdAt ? sug.createdAt.split('T')[0] : '-'}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold border ${
+                          sug.status === 'ACQUIRED'
+                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                            : sug.status === 'APPROVED'
+                            ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30'
+                            : sug.status === 'REJECTED'
+                            ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                            : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                        }`}>
+                          {sug.status}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 text-[11px] font-mono text-slate-400">
+                        {sug.adminComment || '-'}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* My Reserved Book Holds Queue */}
@@ -322,6 +441,101 @@ export default function StudentDashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Suggest New Book Modal */}
+      {isSuggestModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+          <div
+            className="w-full max-w-lg rounded-2xl border p-6 space-y-4 shadow-2xl relative"
+            style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+          >
+            <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--card-border)' }}>
+              <div className="flex items-center space-x-2">
+                <Lightbulb className="w-5 h-5 text-amber-400" />
+                <h3 className="font-bold text-base">Suggest a New Book for Library Acquisition</h3>
+              </div>
+              <button onClick={() => setIsSuggestModalOpen(false)} className="text-slate-400 hover:text-white p-1 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {sugMessage && (
+              <div className={`p-3 rounded-xl text-xs font-bold ${
+                sugMessage.includes('submitted') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+              }`}>
+                {sugMessage}
+              </div>
+            )}
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>Book Title *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Designing Data-Intensive Applications"
+                  value={sugTitle}
+                  onChange={(e) => setSugTitle(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border bg-slate-900/50 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                  style={{ borderColor: 'var(--card-border)' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>Author Name *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Martin Kleppmann"
+                  value={sugAuthor}
+                  onChange={(e) => setSugAuthor(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border bg-slate-900/50 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                  style={{ borderColor: 'var(--card-border)' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>ISBN (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 9781449373320"
+                  value={sugIsbn}
+                  onChange={(e) => setSugIsbn(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border bg-slate-900/50 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                  style={{ borderColor: 'var(--card-border)' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>Why should the library purchase this book? (Reason / Notes)</label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. Recommended reading for CS401 Distributed Systems course"
+                  value={sugReason}
+                  onChange={(e) => setSugReason(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border bg-slate-900/50 text-xs focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                  style={{ borderColor: 'var(--card-border)' }}
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end space-x-2">
+                <button
+                  onClick={() => setIsSuggestModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border text-xs font-bold"
+                  style={{ borderColor: 'var(--card-border)', color: 'var(--text-muted)' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => createSuggestionMutation.mutate()}
+                  disabled={createSuggestionMutation.isPending}
+                  className="px-5 py-2 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-600/20"
+                >
+                  {createSuggestionMutation.isPending ? 'Submitting...' : 'Submit Suggestion'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
