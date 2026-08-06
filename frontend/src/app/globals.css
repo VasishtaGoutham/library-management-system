@@ -115,8 +115,67 @@ body {
 
 .clean-card:hover {
   border-color: var(--accent-color);
-  transform: translateY(-4px);
-  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.4), 0 0 15px var(--accent-light);
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px var(--accent-light);
+}
+
+/* Entrance Animation Keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes zoomInFloat {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-zoom-in-float {
+  animation: zoomInFloat 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+  animation: gentleFloat 5s ease-in-out infinite;
 }
 
 /* Interactive Button Hover & Click Actions */
@@ -126,6 +185,58 @@ button, a {
 
 button:active {
   transform: scale(0.96);
+}
+
+/* Hover Shimmer & Button Motion */
+.btn-motion {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-motion:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 25px -5px rgba(99, 102, 241, 0.4);
+}
+
+.btn-motion::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+  transform: rotate(30deg) translateX(-100%);
+  transition: transform 0.8s ease;
+}
+
+.btn-motion:hover::after {
+  transform: rotate(30deg) translateX(100%);
+}
+
+/* Hero Image Interactive 3D Perspective Tilt on Hover */
+.hero-image-card {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+
+.hero-image-card:hover {
+  transform: translateY(-8px) scale(1.02) rotateX(2deg) rotateY(-2deg);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 25px var(--accent-light);
+}
+
+.hero-image-card img {
+  transition: transform 0.7s ease;
+}
+
+.hero-image-card:hover img {
+  transform: scale(1.06);
 }
 
 /* Glow Border Utility */

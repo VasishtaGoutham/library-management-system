@@ -21,20 +21,20 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center w-full">
           
           {/* Left Column Text & CTAs */}
-          <div className="lg:col-span-6 space-y-6 text-left">
-            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full border text-xs font-semibold" style={{ backgroundColor: 'var(--accent-light)', borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}>
-              <Sparkles className="w-3.5 h-3.5" />
+          <div className="lg:col-span-6 space-y-6 text-left animate-slide-in-left">
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full border text-xs font-semibold hover:scale-105 transition cursor-default" style={{ backgroundColor: 'var(--accent-light)', borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}>
+              <Sparkles className="w-3.5 h-3.5 animate-spin-slow" />
               <span>Welcome to LibraryUniverse</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight" style={{ color: 'var(--text-main)' }}>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight animate-fade-in-up" style={{ color: 'var(--text-main)' }}>
               Your Gateway to <br />
-              <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 bg-clip-text text-transparent hover:brightness-125 transition duration-500 inline-block">
                 Endless Knowledge
               </span>
             </h1>
 
-            <p className="text-base leading-relaxed max-w-xl" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-base leading-relaxed max-w-xl animate-fade-in-up" style={{ color: 'var(--text-muted)' }}>
               Discover, reserve, and borrow thousands of books from our extensive collection. Join our community of readers and experience seamless, modern library management.
             </p>
 
@@ -42,29 +42,29 @@ export default function Home() {
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link
                 href="/catalog"
-                className="px-6 py-3.5 rounded-xl font-semibold text-sm transition text-white shadow-lg flex items-center space-x-2 hover:opacity-90"
+                className="btn-motion px-6 py-3.5 rounded-xl font-bold text-sm text-white shadow-xl flex items-center space-x-2 group"
                 style={{ backgroundColor: 'var(--accent-color)' }}
               >
                 <span>Explore Books</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300" />
               </Link>
 
               {user ? (
                 <Link
                   href={user.role === 'ROLE_ADMIN' ? '/admin/dashboard' : '/student/dashboard'}
-                  className="px-6 py-3.5 rounded-xl font-semibold text-sm border transition flex items-center space-x-2"
+                  className="btn-motion px-6 py-3.5 rounded-xl font-bold text-sm border flex items-center space-x-2 group"
                   style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
                 >
-                  <BookMarked className="w-4 h-4 text-emerald-500" />
+                  <BookMarked className="w-4 h-4 text-emerald-500 group-hover:rotate-12 transition-transform duration-300" />
                   <span>My Dashboard</span>
                 </Link>
               ) : (
                 <Link
                   href="/login"
-                  className="px-6 py-3.5 rounded-xl font-semibold text-sm border transition flex items-center space-x-2"
+                  className="btn-motion px-6 py-3.5 rounded-xl font-bold text-sm border flex items-center space-x-2 group"
                   style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
                 >
-                  <BookOpen className="w-4 h-4" style={{ color: 'var(--accent-color)' }} />
+                  <BookOpen className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" style={{ color: 'var(--accent-color)' }} />
                   <span>Login / Register</span>
                 </Link>
               )}
@@ -72,46 +72,47 @@ export default function Home() {
 
             {/* Quick Stat Indicators */}
             <div className="pt-4 flex flex-wrap items-center gap-6 text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
-              <div className="flex items-center space-x-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-xl border bg-slate-900/30 hover:scale-105 transition cursor-default" style={{ borderColor: 'var(--card-border)' }}>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>10,000+ Books</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-xl border bg-slate-900/30 hover:scale-105 transition cursor-default" style={{ borderColor: 'var(--card-border)' }}>
+                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
                 <span>5,000+ Members</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-xl border bg-slate-900/30 hover:scale-105 transition cursor-default" style={{ borderColor: 'var(--card-border)' }}>
+                <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse"></span>
                 <span>24/7 Access</span>
               </div>
             </div>
           </div>
 
           {/* Right Column: Custom Student Library Desk Image */}
-          <div className="lg:col-span-6 relative">
+          <div className="lg:col-span-6 relative animate-zoom-in-float">
             <div 
-              className="relative rounded-3xl p-3 md:p-4 border shadow-2xl overflow-hidden transition-colors duration-300"
+              className="hero-image-card relative rounded-3xl p-3 md:p-4 border shadow-2xl overflow-hidden cursor-pointer"
               style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
             >
               
               {/* Floating Top Badge */}
-              <div className="absolute top-6 right-6 z-10 px-3 py-1 rounded-full bg-amber-500/90 text-slate-950 font-bold text-[11px] shadow-md flex items-center space-x-1 backdrop-blur-md">
+              <div className="absolute top-6 right-6 z-10 px-3 py-1.5 rounded-full bg-amber-500 text-slate-950 font-extrabold text-[11px] shadow-lg flex items-center space-x-1.5 backdrop-blur-md hover:scale-110 transition">
+                <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
                 <span>📚 Quiet Study Area</span>
               </div>
 
               {/* Main Image */}
-              <div className="relative h-80 md:h-[420px] w-full rounded-2xl overflow-hidden">
+              <div className="relative h-80 md:h-[420px] w-full rounded-2xl overflow-hidden group">
                 <img
                   src="/hero_student.jpg"
                   alt="Student studying at private library desk with paintings"
-                  className="w-full h-full object-cover rounded-2xl shadow-inner"
+                  className="w-full h-full object-cover rounded-2xl shadow-inner group-hover:scale-105 transition-transform duration-700"
                 />
               </div>
 
               {/* Bottom Feature Bar */}
-              <div className="mt-3 p-3.5 rounded-xl border flex items-center justify-between text-xs" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
+              <div className="mt-3 p-3.5 rounded-xl border flex items-center justify-between text-xs transition group-hover:border-indigo-500/50" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 rounded-lg border" style={{ backgroundColor: 'var(--accent-light)', borderColor: 'var(--accent-color)' }}>
+                  <div className="p-2 rounded-lg border transition group-hover:scale-110" style={{ backgroundColor: 'var(--accent-light)', borderColor: 'var(--accent-color)' }}>
                     <BookOpen className="w-4 h-4" style={{ color: 'var(--accent-color)' }} />
                   </div>
                   <div>
@@ -119,7 +120,7 @@ export default function Home() {
                     <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Experience tranquil learning spaces</span>
                   </div>
                 </div>
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 animate-bounce" />
               </div>
 
             </div>
