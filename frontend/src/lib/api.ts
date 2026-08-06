@@ -6,12 +6,12 @@ const getBaseUrl = () => {
   }
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
-    if (host.includes('vercel.app') || host.includes('loca.lt')) {
-      return 'https://library-backend-api.loca.lt/api/v1';
+    if (host.includes('vercel.app') || host.includes('loca.lt') || host.includes('lhr.life')) {
+      return 'https://8971a946c73f8d.lhr.life/api/v1';
     }
     return `http://${host}:8080/api/v1`;
   }
-  return 'https://library-backend-api.loca.lt/api/v1';
+  return 'https://8971a946c73f8d.lhr.life/api/v1';
 };
 
 const api = axios.create({
@@ -27,17 +27,20 @@ api.interceptors.request.use((config) => {
   config.baseURL = currentBaseUrl;
 
   if (typeof window !== 'undefined') {
-    try {
-      const authData = localStorage.getItem('library-auth');
-      if (authData) {
-        const parsed = JSON.parse(authData);
-        const token = parsed?.state?.token;
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+    let token = localStorage.getItem('token');
+    if (!token) {
+      try {
+        const authData = localStorage.getItem('library-auth');
+        if (authData) {
+          const parsed = JSON.parse(authData);
+          token = parsed?.state?.token || parsed?.state?.user?.token || parsed?.state?.user?.jwt;
         }
+      } catch {
+        // fallback
       }
-    } catch {
-      // fallback
+    }
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
 

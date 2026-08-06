@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useThemeStore, ThemeMode } from '@/store/useThemeStore';
 import api from '@/lib/api';
-import { BookOpen, User, LogOut, LayoutDashboard, Search, ShieldCheck, Palette, Check } from 'lucide-react';
+import { BookOpen, User, LogOut, LayoutDashboard, ShieldCheck, Palette, Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function Navbar() {
@@ -20,9 +20,18 @@ export default function Navbar() {
   }, [theme]);
 
   useEffect(() => {
-    api.get('/auth/me')
-      .then((res) => setUser(res.data))
-      .catch(() => setUser(null));
+    let token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (token) {
+      api.get('/auth/me')
+        .then((res) => {
+          if (res.data && res.data.email) {
+            setUser(res.data);
+          }
+        })
+        .catch(() => {
+          // preserve local state if network glitch
+        });
+    }
   }, [setUser]);
 
   const handleLogout = async () => {
