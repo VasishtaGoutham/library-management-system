@@ -293,58 +293,55 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contact & Guest Inquiry Form Section (#contact) */}
-      <section id="contact" className="py-16 border-t transition-colors duration-300 relative z-10" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
-        <div className="max-w-7xl w-full mx-auto px-6 space-y-10">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--accent-color)' }}>Get In Touch</span>
-            <h2 className="text-2xl md:text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Contact Library Help Desk</h2>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Have questions about borrowing limits, book availability, or campus library access? Submit a message below.</p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto">
-            {/* Info Cards Column */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="clean-card p-5 space-y-2">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2.5 rounded-xl border bg-indigo-500/10 border-indigo-500/30 text-indigo-400">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Central Library Location</h4>
-                    <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Central Academic Building, Floor 2 • Quad 4</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="clean-card p-5 space-y-2">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2.5 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-emerald-400">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Direct Email Support</h4>
-                    <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>support@libraryuniverse.edu</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="clean-card p-5 space-y-2">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2.5 rounded-xl border bg-purple-500/10 border-purple-500/30 text-purple-400">
-                    <Phone className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>24/7 Help Desk Line</h4>
-                    <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>+1 (800) 555-LIB-UNIV</p>
-                  </div>
-                </div>
-              </div>
+      {/* Dedicated Standalone Guest Inquiry Form Section (Visible when scrolling when not logged in) */}
+      {!user && (
+        <section className="py-16 border-t relative z-10" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+          <div className="max-w-4xl mx-auto px-6 space-y-6">
+            <div className="text-center space-y-2">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                ⚡ Guest & Visitor Help Desk
+              </span>
+              <h2 className="text-2xl md:text-3xl font-extrabold" style={{ color: 'var(--text-main)' }}>
+                Have a Question? Ask the University Librarian Desk
+              </h2>
+              <p className="text-xs max-w-xl mx-auto" style={{ color: 'var(--text-muted)' }}>
+                Submit your inquiry about book availability, membership passes, or campus library access. Our librarian team replies within 2 hours.
+              </p>
             </div>
 
-            {/* Guest Inquiry Form Column */}
-            <div className="lg:col-span-7">
+            <div className="max-w-2xl mx-auto">
               <GuestInquiryForm />
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Contact Section (#contact) */}
+      <section id="contact" className="py-16 border-t transition-colors duration-300 relative z-10" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
+        <div className="max-w-7xl w-full mx-auto px-6 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--accent-color)' }}>Get In Touch</span>
+            <h2 className="text-2xl md:text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Contact Information & Location</h2>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Visit our campus library or reach out to our support team.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="clean-card p-5 text-center space-y-2">
+              <MapPin className="w-6 h-6 mx-auto text-indigo-400" />
+              <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Central Library Location</h4>
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Central Academic Building, Floor 2 • Quad 4</p>
+            </div>
+
+            <div className="clean-card p-5 text-center space-y-2">
+              <Mail className="w-6 h-6 mx-auto text-emerald-400" />
+              <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>Direct Email Support</h4>
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>support@libraryuniverse.edu</p>
+            </div>
+
+            <div className="clean-card p-5 text-center space-y-2">
+              <Phone className="w-6 h-6 mx-auto text-purple-400" />
+              <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>24/7 Help Desk Line</h4>
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>+1 (800) 555-LIB-UNIV</p>
             </div>
           </div>
         </div>
