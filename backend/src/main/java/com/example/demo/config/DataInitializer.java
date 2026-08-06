@@ -4,6 +4,7 @@ import com.example.demo.model.*;
 import com.example.demo.repository.BookCopyRepository;
 import com.example.demo.repository.BookRepository;
 import com.example.demo.repository.CategoryRepository;
+import com.example.demo.repository.CourseReserveRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -18,6 +19,7 @@ public class DataInitializer implements CommandLineRunner {
     private final CategoryRepository categoryRepository;
     private final BookRepository bookRepository;
     private final BookCopyRepository bookCopyRepository;
+    private final CourseReserveRepository courseReserveRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -292,6 +294,74 @@ public class DataInitializer implements CommandLineRunner {
         addBook("The Prince", "Niccolo Machiavelli", "9780140449150", "Penguin Classics", "Translated Edition", 2003, "English", "Classic treatise on political power, statecraft, and pragmatism.", hum, 3);
 
         System.out.println(">>> SUCCESSFULLY SEEDED 200 COLLEGE LIBRARY BOOKS!");
+
+        seedCourseReserves();
+    }
+
+    private void seedCourseReserves() {
+        if (courseReserveRepository.count() > 0) return;
+
+        bookRepository.findByIsbnAndIsDeletedFalse("9780262033848").ifPresent(book -> {
+            courseReserveRepository.save(com.example.demo.model.CourseReserve.builder()
+                    .courseCode("CS 301")
+                    .courseName("Data Structures & Algorithms")
+                    .department("Computer Science & IT")
+                    .instructor("Prof. Alan Turing")
+                    .semester("Fall 2026")
+                    .book(book)
+                    .requirementType("REQUIRED")
+                    .build());
+        });
+
+        bookRepository.findByIsbnAndIsDeletedFalse("9780132350884").ifPresent(book -> {
+            courseReserveRepository.save(com.example.demo.model.CourseReserve.builder()
+                    .courseCode("CS 301")
+                    .courseName("Data Structures & Algorithms")
+                    .department("Computer Science & IT")
+                    .instructor("Prof. Alan Turing")
+                    .semester("Fall 2026")
+                    .book(book)
+                    .requirementType("RECOMMENDED")
+                    .build());
+        });
+
+        bookRepository.findByIsbnAndIsDeletedFalse("9781118131992").ifPresent(book -> {
+            courseReserveRepository.save(com.example.demo.model.CourseReserve.builder()
+                    .courseCode("ME 201")
+                    .courseName("Thermodynamics & Heat Transfer")
+                    .department("Mechanical Engineering")
+                    .instructor("Dr. Nikola Tesla")
+                    .semester("Fall 2026")
+                    .book(book)
+                    .requirementType("REQUIRED")
+                    .build());
+        });
+
+        bookRepository.findByIsbnAndIsDeletedFalse("9780132774208").ifPresent(book -> {
+            courseReserveRepository.save(com.example.demo.model.CourseReserve.builder()
+                    .courseCode("EE 102")
+                    .courseName("Digital Circuits & Signals")
+                    .department("Electrical & Electronics")
+                    .instructor("Prof. James Maxwell")
+                    .semester("Fall 2026")
+                    .book(book)
+                    .requirementType("REQUIRED")
+                    .build());
+        });
+
+        bookRepository.findByIsbnAndIsDeletedFalse("9780321629111").ifPresent(book -> {
+            courseReserveRepository.save(com.example.demo.model.CourseReserve.builder()
+                    .courseCode("MATH 402")
+                    .courseName("Applied Statistics & Probability")
+                    .department("Mathematics & Data Science")
+                    .instructor("Dr. Carl Gauss")
+                    .semester("Fall 2026")
+                    .book(book)
+                    .requirementType("REQUIRED")
+                    .build());
+        });
+
+        System.out.println(">>> SEEDED SAMPLE COURSE RESERVES!");
     }
 
     private Category getOrCreateCategory(String name, String desc) {

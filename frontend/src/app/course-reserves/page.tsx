@@ -3,12 +3,29 @@
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
 import { 
   GraduationCap, BookOpen, Layers, Search, CheckCircle2, 
-  ExternalLink, ArrowRight, Bookmark, ShieldCheck, UserCheck
+  ExternalLink, ArrowRight, Bookmark, ShieldCheck, UserCheck, RefreshCw
 } from 'lucide-react';
 
-interface CourseReserve {
+interface CourseReserveResponse {
+  id: number;
+  courseCode: string;
+  courseName: string;
+  department: string;
+  instructor: string;
+  semester: string;
+  bookId: number;
+  bookTitle: string;
+  bookAuthor: string;
+  bookIsbn: string;
+  availableCopies: number;
+  requirementType: string;
+}
+
+interface GroupedCourseReserve {
   courseCode: string;
   courseName: string;
   department: string;
@@ -18,12 +35,12 @@ interface CourseReserve {
     title: string;
     author: string;
     isbn: string;
-    type: 'Required' | 'Recommended';
+    type: string;
     availableCopies: number;
   }[];
 }
 
-const SAMPLE_RESERVES: CourseReserve[] = [
+const FALLBACK_RESERVES: GroupedCourseReserve[] = [
   {
     courseCode: 'CS 301',
     courseName: 'Data Structures & Algorithms',
@@ -76,7 +93,42 @@ export default function CourseReservesPage() {
 
   const departments = ['ALL', 'Computer Science & IT', 'Mechanical Engineering', 'Electrical & Electronics', 'Mathematics & Data Science'];
 
-  const filteredReserves = SAMPLE_RESERVES.filter((res) => {
+  // Fetch real-time reserves from Spring Boot Backend
+  const { data: rawReserves, isLoading } = useQuery<CourseReserveResponse[]>({
+    queryKey: ['course-reserves'],
+    queryFn: async () => {
+      const res = await api.get('/course-reserves');
+      return res.data;
+    },
+  });
+
+  // Group flat backend course reserve responses by courseCode
+  const groupedReserves: GroupedCourseReserve[] = (rawReserves && rawReserves.length > 0)
+    ? Object.values(
+        rawReserves.reduce((acc, curr) => {
+          if (!acc[curr.courseCode]) {
+            acc[curr.courseCode] = {
+              courseCode: curr.courseCode,
+              courseName: curr.courseName,
+              department: curr.department,
+              instructor: curr.instructor,
+              semester: curr.semester,
+              textbooks: [],
+            };
+          }
+          acc[curr.courseCode].textbooks.push({
+            title: curr.bookTitle,
+            author: curr.bookAuthor,
+            isbn: curr.bookIsbn,
+            type: curr.requirementType,
+            availableCopies: curr.availableCopies,
+          });
+          return acc;
+        }, {} as Record<string, GroupedCourseReserve>)
+      )
+    : FALLBACK_RESERVES;
+
+  const filteredReserves = groupedReserves.filter((res) => {
     const matchesDept = selectedDept === 'ALL' || res.department === selectedDept;
     const matchesQuery = !searchQuery || 
       res.courseCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -94,7 +146,7 @@ export default function CourseReservesPage() {
         <div className="border-b pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4" style={{ borderColor: 'var(--card-border)' }}>
           <div>
             <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold px-2.5 py-1 rounded-md border text-emerald-400 bg-emerald-500/10 border-emerald-500/20">
-              Academic Curriculum Integration
+              Live Database Syllabus Integration
             </span>
             <h1 className="text-2xl font-black tracking-tight mt-2" style={{ color: 'var(--text-main)' }}>
               🎓 Departmental Course Reserves & Textbook Hub
@@ -137,69 +189,77 @@ export default function CourseReservesPage() {
         </div>
 
         {/* Course Cards */}
-        <div className="space-y-6">
-          {filteredReserves.map((course) => (
-            <div key={course.courseCode} className="clean-card p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 gap-2" style={{ borderColor: 'var(--card-border)' }}>
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-black font-mono bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-                      {course.courseCode}
-                    </span>
-                    <h2 className="font-extrabold text-base" style={{ color: 'var(--text-main)' }}>{course.courseName}</h2>
-                  </div>
-                  <p className="text-xs mt-1 text-slate-400">
-                    Instructor: <strong>{course.instructor}</strong> • Department: {course.department}
-                  </p>
-                </div>
-
-                <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 self-start">
-                  {course.semester}
-                </span>
-              </div>
-
-              {/* Textbooks List */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Assigned Textbooks & Syllabus Materials</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {course.textbooks.map((tb) => (
-                    <div
-                      key={tb.isbn}
-                      className="p-4 rounded-xl border flex flex-col justify-between space-y-3"
-                      style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}
-                    >
-                      <div>
-                        <div className="flex items-start justify-between gap-2">
-                          <h5 className="font-bold text-sm line-clamp-1" style={{ color: 'var(--text-main)' }}>{tb.title}</h5>
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold border ${
-                            tb.type === 'Required' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-slate-500/20 text-slate-400 border-slate-500/30'
-                          }`}>
-                            {tb.type}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-400 mt-0.5">by {tb.author}</p>
-                        <p className="text-[10px] font-mono text-slate-500 mt-1">ISBN: {tb.isbn}</p>
-                      </div>
-
-                      <div className="flex items-center justify-between border-t pt-2" style={{ borderColor: 'var(--card-border)' }}>
-                        <span className="text-xs font-semibold text-emerald-400">
-                          {tb.availableCopies} Copies Available in Library
-                        </span>
-                        <Link
-                          href={`/catalog?search=${encodeURIComponent(tb.isbn)}`}
-                          className="text-xs font-bold text-indigo-400 hover:underline flex items-center gap-1"
-                        >
-                          <span>Locate in Catalog</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                      </div>
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-48 rounded-2xl border animate-pulse" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}></div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {filteredReserves.map((course) => (
+              <div key={course.courseCode} className="clean-card p-6 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 gap-2" style={{ borderColor: 'var(--card-border)' }}>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2.5 py-0.5 rounded text-[10px] font-black font-mono bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                        {course.courseCode}
+                      </span>
+                      <h2 className="font-extrabold text-base" style={{ color: 'var(--text-main)' }}>{course.courseName}</h2>
                     </div>
-                  ))}
+                    <p className="text-xs mt-1 text-slate-400">
+                      Instructor: <strong>{course.instructor}</strong> • Department: {course.department}
+                    </p>
+                  </div>
+
+                  <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 self-start">
+                    {course.semester}
+                  </span>
+                </div>
+
+                {/* Textbooks List */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Assigned Textbooks & Syllabus Materials</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {course.textbooks.map((tb) => (
+                      <div
+                        key={tb.isbn}
+                        className="p-4 rounded-xl border flex flex-col justify-between space-y-3"
+                        style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}
+                      >
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <h5 className="font-bold text-sm line-clamp-1" style={{ color: 'var(--text-main)' }}>{tb.title}</h5>
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold border ${
+                              tb.type === 'REQUIRED' || tb.type === 'Required' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+                            }`}>
+                              {tb.type}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-400 mt-0.5">by {tb.author}</p>
+                          <p className="text-[10px] font-mono text-slate-500 mt-1">ISBN: {tb.isbn}</p>
+                        </div>
+
+                        <div className="flex items-center justify-between border-t pt-2" style={{ borderColor: 'var(--card-border)' }}>
+                          <span className="text-xs font-semibold text-emerald-400">
+                            {tb.availableCopies} Copies Available in Library
+                          </span>
+                          <Link
+                            href={`/catalog?search=${encodeURIComponent(tb.isbn)}`}
+                            className="text-xs font-bold text-indigo-400 hover:underline flex items-center gap-1"
+                          >
+                            <span>Locate in Catalog</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
