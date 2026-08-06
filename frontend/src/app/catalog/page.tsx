@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Navbar from '@/components/Navbar';
-import BarcodeModal from '@/components/BarcodeModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { 
   Search, BookOpen, Layers, QrCode, CheckCircle2, 
