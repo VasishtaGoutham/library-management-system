@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Navbar from '@/components/Navbar';
 import { useAuthStore } from '@/store/useAuthStore';
 import { 
   Search, BookOpen, Layers, QrCode, CheckCircle2, 
-  XCircle, Filter, X, ChevronRight, Copy, Check, Tag, Calendar, Globe, Bookmark
+  XCircle, Filter, X, ChevronRight, Copy, Check, Tag, 
+  Calendar, Globe, Bookmark, Star, MessageSquare, Send, Trash2, UserCheck
 } from 'lucide-react';
 
 interface Book {
@@ -34,8 +35,26 @@ interface Category {
   description?: string;
 }
 
+interface Review {
+  id: number;
+  bookId: number;
+  studentId: number;
+  studentName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+interface BookRatingSummary {
+  bookId: number;
+  averageRating: number;
+  totalReviews: number;
+  reviews: Review[];
+}
+
 export default function CatalogPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
 
   const [search, setSearch] = useState('');
@@ -44,9 +63,15 @@ export default function CatalogPage() {
   const [barcodeModalBook, setBarcodeModalBook] = useState<Book | null>(null);
   const [copiedBarcode, setCopiedBarcode] = useState<string | null>(null);
 
+  // Review Form State
+  const [userRating, setUserRating] = useState<number>(5);
+  const [userComment, setUserComment] = useState<string>('');
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [reviewMessage, setReviewMessage] = useState<string | null>(null);
+
   // Authentication Guard: Redirect to /login if guest
   useEffect(() => {
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('token');
     if (!token && !user) {
       router.push('/login');
     }
@@ -62,20 +87,22 @@ export default function CatalogPage() {
   });
 
   // Fetch Books
-  const { data: booksData, isLoading, error } = useQuery({
-    queryKey: ['books', search, selectedCategory],
+  const { data: books = [], isLoading: isLoadingBooks } = useQuery<Book[]>({
+    queryKey: ['books', selectedCategory, search],
     queryFn: async () => {
-      const params: any = { page: 0, size: 20 };
-      if (search) params.query = search;
-      if (selectedCategory !== null) params.categoryId = selectedCategory;
+      let url = '/books';
+      const params: string[] = [];
+      if (selectedCategory) params.push(`categoryId=${selectedCategory}`);
+      if (search) params.push(`search=${encodeURIComponent(search)}`);
+      if (params.length > 0) url += `?${params.join('&')}`;
 
-      const res = await api.get('/books', { params });
+      const res = await api.get(url);
       return res.data;
     },
   });
 
-  // Fetch Barcode Copies for Modal
-  const { data: bookCopies = [], isLoading: isLoadingCopies } = useQuery({
+  // Fetch Barcodes for selected modal book
+  const { data: bookCopies = [] } = useQuery({
     queryKey: ['book-copies', barcodeModalBook?.id],
     queryFn: async () => {
       if (!barcodeModalBook) return [];
@@ -85,7 +112,51 @@ export default function CatalogPage() {
     enabled: !!barcodeModalBook,
   });
 
-  const books: Book[] = booksData?.content || [];
+  // Fetch Reviews & Ratings for selected book
+  const { data: ratingSummary, refetch: refetchReviews } = useQuery<BookRatingSummary>({
+    queryKey: ['book-reviews', selectedBook?.id],
+    queryFn: async () => {
+      if (!selectedBook) return { bookId: 0, averageRating: 0, totalReviews: 0, reviews: [] };
+      const res = await api.get(`/books/${selectedBook.id}/reviews`);
+      return res.data;
+    },
+    enabled: !!selectedBook,
+  });
+
+  // Submit Review Mutation
+  const submitReviewMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedBook) return;
+      if (!userComment.trim()) throw new Error('Please write a short review comment');
+      const res = await api.post(`/books/${selectedBook.id}/reviews`, {
+        rating: userRating,
+        comment: userComment,
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      setUserComment('');
+      setReviewMessage('Thank you! Your review has been published.');
+      refetchReviews();
+      queryClient.invalidateQueries({ queryKey: ['book-reviews'] });
+    },
+    onError: (err: any) => {
+      setReviewMessage(err.message || err.response?.data?.message || 'Failed to submit review');
+    },
+  });
+
+  // Delete Review Mutation
+  const deleteReviewMutation = useMutation({
+    mutationFn: async (reviewId: number) => {
+      if (!selectedBook) return;
+      await api.delete(`/books/${selectedBook.id}/reviews/${reviewId}`);
+    },
+    onSuccess: () => {
+      setReviewMessage('Review deleted.');
+      refetchReviews();
+      queryClient.invalidateQueries({ queryKey: ['book-reviews'] });
+    },
+  });
 
   const handleCopyBarcode = (barcode: string) => {
     navigator.clipboard.writeText(barcode);
@@ -97,56 +168,67 @@ export default function CatalogPage() {
     <div className="min-h-screen flex flex-col font-sans transition-colors duration-300" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-main)' }}>
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
-        {/* Header & Search Bar */}
-        <div className="space-y-4 text-center max-w-2xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: 'var(--text-main)' }}>
-            Explore Library Catalog
-          </h1>
-          <p className="text-xs sm:text-sm" style={{ color: 'var(--text-muted)' }}>
-            Browse physical book titles, filter by categories, check real-time availability, and view copy barcodes.
-          </p>
+      <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+        
+        {/* Page Title & Search Bar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-5" style={{ borderColor: 'var(--card-border)' }}>
+          <div>
+            <h1 className="text-2xl font-black tracking-tight flex items-center gap-2">
+              <BookOpen className="w-6 h-6" style={{ color: 'var(--accent-color)' }} />
+              <span>Library Catalog</span>
+            </h1>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+              Explore over {books.length} books across 10 categories with real-time physical barcode availability & student ratings.
+            </p>
+          </div>
 
-          <div className="relative mt-4">
-            <Search className="absolute left-4 top-3.5 w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+          {/* Search Box */}
+          <div className="relative w-full md:w-80">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by Title, Author, or ISBN..."
+              placeholder="Search by title, author, or ISBN..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 text-xs sm:text-sm rounded-2xl border transition-all duration-200 focus:outline-none shadow-sm"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs focus:outline-none shadow-sm transition"
               style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
             />
+            {search && (
+              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Filter Chips */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none">
+        {/* Filter Pills */}
+        <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none text-xs">
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${
-              selectedCategory === null ? 'shadow-sm' : 'hover:opacity-80'
+            className={`px-3.5 py-1.5 rounded-xl font-medium transition flex items-center space-x-1.5 whitespace-nowrap ${
+              selectedCategory === null ? 'text-white shadow-sm' : 'border opacity-80 hover:opacity-100'
             }`}
             style={{
               backgroundColor: selectedCategory === null ? 'var(--accent-color)' : 'var(--card-bg)',
               borderColor: 'var(--card-border)',
-              color: selectedCategory === null ? '#ffffff' : 'var(--text-main)',
+              color: selectedCategory === null ? '#fff' : 'var(--text-main)',
             }}
           >
-            All Categories ({books.length})
+            <Filter className="w-3.5 h-3.5" />
+            <span>All Categories</span>
           </button>
 
           {categories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${
-                selectedCategory === cat.id ? 'shadow-sm' : 'hover:opacity-80'
+              onClick={() => setSelectedCategory(cat.id === selectedCategory ? null : cat.id)}
+              className={`px-3.5 py-1.5 rounded-xl font-medium transition whitespace-nowrap border ${
+                selectedCategory === cat.id ? 'text-white shadow-sm' : 'opacity-80 hover:opacity-100'
               }`}
               style={{
                 backgroundColor: selectedCategory === cat.id ? 'var(--accent-color)' : 'var(--card-bg)',
                 borderColor: 'var(--card-border)',
-                color: selectedCategory === cat.id ? '#ffffff' : 'var(--text-main)',
+                color: selectedCategory === cat.id ? '#fff' : 'var(--text-main)',
               }}
             >
               {cat.name}
@@ -154,270 +236,322 @@ export default function CatalogPage() {
           ))}
         </div>
 
-        {/* Loading / Error States */}
-        {isLoading && (
-          <div className="text-center py-16 space-y-3">
-            <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin mx-auto" style={{ borderColor: 'var(--accent-color)', borderTopColor: 'transparent' }}></div>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Fetching books from inventory...</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs p-4 rounded-xl text-center">
-            Failed to load books. Please check backend connection.
-          </div>
-        )}
-
         {/* Books Grid */}
-        {!isLoading && !error && (
+        {isLoadingBooks ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="h-80 rounded-2xl border animate-pulse" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}></div>
+            ))}
+          </div>
+        ) : books.length === 0 ? (
+          <div className="py-20 text-center space-y-3 border rounded-2xl" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <BookOpen className="w-12 h-12 mx-auto text-slate-500 opacity-50" />
+            <h3 className="font-bold text-base">No books match your criteria</h3>
+            <p className="text-xs text-slate-400">Try adjusting your search keywords or category filters.</p>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {books.length === 0 ? (
-              <div className="col-span-full py-16 text-center space-y-2">
-                <BookOpen className="w-10 h-10 mx-auto" style={{ color: 'var(--text-muted)' }} />
-                <p className="text-sm font-semibold" style={{ color: 'var(--text-main)' }}>No books found</p>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Try adjusting your search query or category filter.</p>
-              </div>
-            ) : (
-              books.map((book) => (
-                <div
-                  key={book.id}
-                  className="clean-card p-5 flex flex-col justify-between space-y-4 hover:-translate-y-1 transition duration-300"
-                >
-                  <div className="space-y-3">
-                    {/* Cover or Placeholder */}
-                    <div className="h-44 rounded-xl overflow-hidden bg-slate-900/5 border relative flex items-center justify-center" style={{ borderColor: 'var(--card-border)' }}>
-                      {book.coverImageUrl ? (
-                        <img src={book.coverImageUrl} alt={book.title} className="w-full h-full object-cover" />
+            {books.map((book) => (
+              <div
+                key={book.id}
+                className="border rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between group"
+                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
+              >
+                <div>
+                  {/* Book Cover Image */}
+                  <div className="h-52 w-full relative bg-slate-950 overflow-hidden flex items-center justify-center">
+                    {book.coverImageUrl ? (
+                      <img
+                        src={book.coverImageUrl}
+                        alt={book.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="text-center p-4">
+                        <BookOpen className="w-12 h-12 mx-auto mb-2 text-indigo-400 opacity-50" />
+                        <span className="text-xs font-bold text-slate-400">{book.categoryName || 'General'}</span>
+                      </div>
+                    )}
+
+                    {/* Stock Status Badge */}
+                    <div className="absolute top-3 left-3">
+                      {book.availableCopies > 0 ? (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/90 text-white shadow-md backdrop-blur-md flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> {book.availableCopies} Available
+                        </span>
                       ) : (
-                        <div className="text-center space-y-1 p-4">
-                          <BookOpen className="w-8 h-8 mx-auto opacity-40" style={{ color: 'var(--accent-color)' }} />
-                          <span className="text-[10px] uppercase font-bold tracking-wider block opacity-60">{book.categoryName || 'General'}</span>
-                        </div>
-                      )}
-
-                      <span
-                        className={`absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                          book.availableCopies > 0
-                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'
-                            : 'bg-rose-500/10 text-rose-500 border-rose-500/30'
-                        }`}
-                      >
-                        {book.availableCopies > 0 ? `${book.availableCopies} Available` : 'Out of Stock'}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--accent-color)' }}>
-                        {book.categoryName || 'Uncategorized'}
-                      </span>
-                      <h3 className="font-bold text-sm line-clamp-1" style={{ color: 'var(--text-main)' }}>{book.title}</h3>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>By {book.author}</p>
-                    </div>
-
-                    {/* Metadata Pill Tags */}
-                    <div className="flex flex-wrap gap-1.5 text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                      {book.edition && (
-                        <span className="px-2 py-0.5 rounded border" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
-                          {book.edition}
-                        </span>
-                      )}
-                      {book.publicationYear && (
-                        <span className="px-2 py-0.5 rounded border" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
-                          Yr: {book.publicationYear}
-                        </span>
-                      )}
-                      {book.language && (
-                        <span className="px-2 py-0.5 rounded border" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
-                          {book.language}
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/90 text-white shadow-md backdrop-blur-md flex items-center gap-1">
+                          <XCircle className="w-3 h-3" /> Checked Out
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t flex items-center justify-between text-xs" style={{ borderColor: 'var(--card-border)' }}>
+                  {/* Book Info */}
+                  <div className="p-4 space-y-2">
+                    <div className="flex items-center justify-between text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                      <span className="font-semibold text-emerald-400">{book.categoryName || 'General'}</span>
+                      <span className="font-mono">ISBN: {book.isbn}</span>
+                    </div>
+
+                    <h2 className="font-bold text-sm line-clamp-1 group-hover:text-indigo-400 transition" style={{ color: 'var(--text-main)' }}>
+                      {book.title}
+                    </h2>
+
+                    <p className="text-xs line-clamp-1" style={{ color: 'var(--text-muted)' }}>
+                      by <strong className="font-semibold">{book.author}</strong>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Bottom Action Footer */}
+                <div className="p-4 border-t space-y-2" style={{ borderColor: 'var(--card-border)' }}>
+                  <div className="flex items-center justify-between text-xs">
+                    {/* View Details / Reviews Button */}
+                    <button
+                      onClick={() => setSelectedBook(book)}
+                      className="text-xs font-bold transition flex items-center space-x-1 hover:underline"
+                      style={{ color: 'var(--accent-color)' }}
+                    >
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <span>Details & Reviews</span>
+                    </button>
+
+                    {/* View Barcodes Button */}
                     <button
                       onClick={() => setBarcodeModalBook(book)}
-                      className="flex items-center space-x-1 font-semibold transition hover:opacity-80"
-                      style={{ color: 'var(--accent-color)' }}
+                      className="p-1.5 rounded-lg border text-slate-400 hover:text-white transition flex items-center space-x-1 text-[11px]"
+                      style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}
+                      title="View Barcodes"
                     >
                       <QrCode className="w-3.5 h-3.5" />
                       <span>Barcodes</span>
                     </button>
-
-                    <button
-                      onClick={() => setSelectedBook(book)}
-                      className="px-3 py-1.5 rounded-lg border font-medium transition hover:opacity-80"
-                      style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
-                    >
-                      Details
-                    </button>
                   </div>
                 </div>
-              ))
-            )}
+
+              </div>
+            ))}
           </div>
         )}
+
       </main>
 
-      {/* Book Detail Modal (Displays all 11 fields) */}
+      {/* Book Details & Student Reviews Modal */}
       {selectedBook && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-lg w-full rounded-2xl p-6 border space-y-5 relative shadow-2xl" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="border rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-6 my-8 relative" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            
+            {/* Close Button */}
             <button
-              onClick={() => setSelectedBook(null)}
-              className="absolute top-4 right-4 p-1 rounded-lg hover:opacity-80"
-              style={{ color: 'var(--text-muted)' }}
+              onClick={() => {
+                setSelectedBook(null);
+                setReviewMessage(null);
+              }}
+              className="absolute right-4 top-4 text-slate-400 hover:text-white p-1 rounded-lg"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-start space-x-4">
-              <div className="w-24 h-32 rounded-xl overflow-hidden border flex-shrink-0 bg-slate-900/10 flex items-center justify-center" style={{ borderColor: 'var(--card-border)' }}>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-5 border-b pb-4" style={{ borderColor: 'var(--card-border)' }}>
+              <div className="w-24 h-32 rounded-xl bg-slate-900 overflow-hidden flex-shrink-0 border" style={{ borderColor: 'var(--card-border)' }}>
                 {selectedBook.coverImageUrl ? (
                   <img src={selectedBook.coverImageUrl} alt={selectedBook.title} className="w-full h-full object-cover" />
                 ) : (
-                  <BookOpen className="w-8 h-8 opacity-40" style={{ color: 'var(--accent-color)' }} />
+                  <div className="w-full h-full flex items-center justify-center"><BookOpen className="w-8 h-8 text-slate-500" /></div>
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded border" style={{ backgroundColor: 'var(--accent-light)', borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}>
+              <div className="space-y-1.5 flex-1">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   {selectedBook.categoryName || 'General'}
                 </span>
-                <h3 className="font-bold text-lg leading-tight" style={{ color: 'var(--text-main)' }}>{selectedBook.title}</h3>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Author: <span className="font-semibold" style={{ color: 'var(--text-main)' }}>{selectedBook.author}</span></p>
-                <p className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>ISBN: {selectedBook.isbn}</p>
+                <h2 className="text-lg font-extrabold">{selectedBook.title}</h2>
+                <p className="text-xs text-slate-400">by <strong className="text-white">{selectedBook.author}</strong></p>
+                <div className="flex items-center space-x-3 text-[11px] text-slate-400 pt-1 font-mono">
+                  <span>ISBN: {selectedBook.isbn}</span>
+                  <span>Year: {selectedBook.publicationYear || '2026'}</span>
+                  <span>Lang: {selectedBook.language || 'English'}</span>
+                </div>
               </div>
             </div>
 
-            {/* 11 Fields Detailed Grid */}
-            <div className="grid grid-cols-2 gap-3 text-xs p-3.5 rounded-xl border" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
-              <div>
-                <span className="block text-[10px]" style={{ color: 'var(--text-muted)' }}>Publisher:</span>
-                <span className="font-medium" style={{ color: 'var(--text-main)' }}>{selectedBook.publisher || 'N/A'}</span>
+            {/* Ratings & Reviews Section */}
+            <div className="space-y-4">
+              
+              {/* Rating Header */}
+              <div className="flex items-center justify-between bg-slate-900/60 p-4 rounded-xl border" style={{ borderColor: 'var(--card-border)' }}>
+                <div>
+                  <h3 className="font-bold text-xs flex items-center gap-1.5">
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <span>Student Ratings & Community Reviews</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    {ratingSummary?.totalReviews || 0} Total Reviews
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-2xl font-black text-amber-400">{ratingSummary?.averageRating || 0.0}</span>
+                  <span className="text-xs text-slate-400 font-bold"> / 5.0</span>
+                </div>
               </div>
 
-              <div>
-                <span className="block text-[10px]" style={{ color: 'var(--text-muted)' }}>Edition:</span>
-                <span className="font-medium" style={{ color: 'var(--text-main)' }}>{selectedBook.edition || '1st Edition'}</span>
-              </div>
+              {/* Notification Banner */}
+              {reviewMessage && (
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center justify-between">
+                  <span>{reviewMessage}</span>
+                  <button onClick={() => setReviewMessage(null)} className="font-bold">×</button>
+                </div>
+              )}
 
-              <div>
-                <span className="block text-[10px]" style={{ color: 'var(--text-muted)' }}>Publication Year:</span>
-                <span className="font-medium" style={{ color: 'var(--text-main)' }}>{selectedBook.publicationYear || 'N/A'}</span>
-              </div>
-
-              <div>
-                <span className="block text-[10px]" style={{ color: 'var(--text-muted)' }}>Language:</span>
-                <span className="font-medium" style={{ color: 'var(--text-main)' }}>{selectedBook.language || 'English'}</span>
-              </div>
-
-              <div>
-                <span className="block text-[10px]" style={{ color: 'var(--text-muted)' }}>Total Physical Copies:</span>
-                <span className="font-bold" style={{ color: 'var(--text-main)' }}>{selectedBook.totalCopies} Copies</span>
-              </div>
-
-              <div>
-                <span className="block text-[10px]" style={{ color: 'var(--text-muted)' }}>Available Copies:</span>
-                <span className="font-bold text-emerald-500">{selectedBook.availableCopies} Available</span>
-              </div>
-            </div>
-
-            <div>
-              <span className="block text-xs font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>Description</span>
-              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-main)' }}>
-                {selectedBook.description || 'No description available for this book title.'}
-              </p>
-            </div>
-
-            <div className="pt-2 flex justify-end space-x-2">
-              <button
-                onClick={() => {
-                  setBarcodeModalBook(selectedBook);
-                  setSelectedBook(null);
-                }}
-                className="px-4 py-2 rounded-xl text-white text-xs font-semibold shadow-sm transition hover:opacity-90 flex items-center space-x-1.5"
-                style={{ backgroundColor: 'var(--accent-color)' }}
-              >
-                <QrCode className="w-4 h-4" />
-                <span>View Barcodes for Borrowing</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Barcodes Modal with 1-Click Copy */}
-      {barcodeModalBook && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-md w-full rounded-2xl p-6 border space-y-4 relative shadow-2xl" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--card-border)' }}>
-              <div>
-                <h3 className="font-bold text-sm" style={{ color: 'var(--text-main)' }}>Physical Copy Barcodes</h3>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{barcodeModalBook.title}</p>
-              </div>
-              <button onClick={() => setBarcodeModalBook(null)} style={{ color: 'var(--text-muted)' }}>
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {isLoadingCopies ? (
-              <div className="py-8 text-center text-xs" style={{ color: 'var(--text-muted)' }}>Loading physical copy barcodes...</div>
-            ) : bookCopies.length === 0 ? (
-              <div className="py-8 text-center text-xs" style={{ color: 'var(--text-muted)' }}>No copies found.</div>
-            ) : (
-              <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
-                {bookCopies.map((copy: any) => (
-                  <div
-                    key={copy.id}
-                    className="p-3 rounded-xl border flex items-center justify-between text-xs"
-                    style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}
-                  >
-                    <div className="space-y-0.5">
-                      <span className="font-mono font-bold block" style={{ color: 'var(--accent-color)' }}>{copy.barcode}</span>
-                      <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{copy.rackLocation || 'Rack A-1'}</span>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                          copy.status === 'AVAILABLE'
-                            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                            : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'
-                        }`}
-                      >
-                        {copy.status}
-                      </span>
-
-                      <button
-                        onClick={() => handleCopyBarcode(copy.barcode)}
-                        className="px-2.5 py-1 rounded-lg border text-[11px] font-semibold flex items-center space-x-1 transition"
-                        style={{
-                          backgroundColor: copiedBarcode === copy.barcode ? '#10b981' : 'var(--card-bg)',
-                          borderColor: 'var(--card-border)',
-                          color: copiedBarcode === copy.barcode ? '#ffffff' : 'var(--text-main)',
-                        }}
-                      >
-                        {copiedBarcode === copy.barcode ? (
-                          <>
-                            <Check className="w-3 h-3 text-white" />
-                            <span className="text-white">Copied!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3 h-3" style={{ color: 'var(--accent-color)' }} />
-                            <span>Copy</span>
-                          </>
-                        )}
-                      </button>
+              {/* Write Review Form */}
+              {user && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    submitReviewMutation.mutate();
+                  }}
+                  className="p-4 rounded-xl border space-y-3"
+                  style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-300">Rate this book:</span>
+                    
+                    {/* Star Rating Input */}
+                    <div className="flex items-center space-x-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          type="button"
+                          key={star}
+                          onClick={() => setUserRating(star)}
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          className="p-1 transition hover:scale-125"
+                        >
+                          <Star
+                            className={`w-5 h-5 ${
+                              star <= (hoverRating || userRating)
+                                ? 'text-amber-400 fill-amber-400'
+                                : 'text-slate-600'
+                            }`}
+                          />
+                        </button>
+                      ))}
                     </div>
                   </div>
-                ))}
+
+                  <textarea
+                    rows={2}
+                    placeholder="Write your review or feedback for fellow students..."
+                    value={userComment}
+                    onChange={(e) => setUserComment(e.target.value)}
+                    required
+                    className="w-full p-3 rounded-xl border text-xs focus:outline-none"
+                    style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+                  />
+
+                  <button
+                    type="submit"
+                    disabled={submitReviewMutation.isPending}
+                    className="w-full py-2 rounded-xl text-xs font-bold text-white transition flex items-center justify-center space-x-2 shadow-md bg-amber-500 hover:bg-amber-400"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Submit Student Review</span>
+                  </button>
+                </form>
+              )}
+
+              {/* Reviews List */}
+              <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                {(!ratingSummary?.reviews || ratingSummary.reviews.length === 0) ? (
+                  <p className="text-center py-6 text-xs text-slate-500">No student reviews yet. Be the first to leave a review!</p>
+                ) : (
+                  ratingSummary.reviews.map((rev) => (
+                    <div key={rev.id} className="p-3.5 rounded-xl border space-y-1.5 text-xs" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-[10px]">
+                            {rev.studentName ? rev.studentName[0].toUpperCase() : 'S'}
+                          </div>
+                          <span className="font-bold text-slate-200">{rev.studentName}</span>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-0.5">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <Star
+                                key={s}
+                                className={`w-3 h-3 ${s <= rev.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-700'}`}
+                              />
+                            ))}
+                          </div>
+
+                          {(user?.id === rev.studentId || user?.role === 'ROLE_ADMIN') && (
+                            <button
+                              onClick={() => deleteReviewMutation.mutate(rev.id)}
+                              className="text-slate-500 hover:text-rose-500 p-0.5"
+                              title="Delete Review"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <p className="text-slate-300 leading-relaxed text-[11px]">{rev.comment}</p>
+                    </div>
+                  ))
+                )}
               </div>
-            )}
+
+            </div>
+
           </div>
         </div>
       )}
+
+      {/* Barcode Modal */}
+      {barcodeModalBook && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="border rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 relative" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <button onClick={() => setBarcodeModalBook(null)} className="absolute right-4 top-4 text-slate-400 hover:text-white p-1 rounded-lg">
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="font-extrabold text-sm flex items-center gap-2">
+              <QrCode className="w-4 h-4" style={{ color: 'var(--accent-color)' }} />
+              <span>Physical Barcodes for "{barcodeModalBook.title}"</span>
+            </h3>
+
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs">
+              {bookCopies.length === 0 ? (
+                <p className="text-slate-400 text-center py-4">No copies registered.</p>
+              ) : (
+                bookCopies.map((copy: any) => (
+                  <div key={copy.id} className="p-3 rounded-xl border flex items-center justify-between" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}>
+                    <div>
+                      <span className="font-mono font-bold text-emerald-400">{copy.barcode}</span>
+                      <span className="block text-[10px] text-slate-400">Rack: {copy.rackLocation || 'Shelf A1'}</span>
+                    </div>
+
+                    <button
+                      onClick={() => handleCopyBarcode(copy.barcode)}
+                      className="px-2.5 py-1 rounded-lg border text-[11px] font-medium flex items-center gap-1 hover:opacity-80"
+                      style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
+                    >
+                      {copiedBarcode === copy.barcode ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedBarcode === copy.barcode ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
