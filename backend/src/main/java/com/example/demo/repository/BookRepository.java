@@ -18,11 +18,19 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Optional<Book> findByIsbnAndIsDeletedFalse(String isbn);
     Boolean existsByIsbnAndIsDeletedFalse(String isbn);
 
-    @Query("SELECT DISTINCT b FROM Book b LEFT JOIN b.copies c WHERE b.isDeleted = false AND " +
-           "(:categoryId IS NULL OR b.category.id = :categoryId) AND " +
-           "(:query IS NULL OR :query = '' OR LOWER(b.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "LOWER(b.author) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "LOWER(b.isbn) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "LOWER(c.barcode) LIKE LOWER(CONCAT('%', :query, '%')))")
+    @Query(
+        value = "SELECT DISTINCT b FROM Book b LEFT JOIN b.copies c WHERE b.isDeleted = false AND " +
+                "(:categoryId IS NULL OR b.category.id = :categoryId) AND " +
+                "(:query IS NULL OR :query = '' OR LOWER(b.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+                "LOWER(b.author) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+                "LOWER(b.isbn) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+                "LOWER(c.barcode) LIKE LOWER(CONCAT('%', :query, '%')))",
+        countQuery = "SELECT COUNT(DISTINCT b) FROM Book b LEFT JOIN b.copies c WHERE b.isDeleted = false AND " +
+                     "(:categoryId IS NULL OR b.category.id = :categoryId) AND " +
+                     "(:query IS NULL OR :query = '' OR LOWER(b.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+                     "LOWER(b.author) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+                     "LOWER(b.isbn) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+                     "LOWER(c.barcode) LIKE LOWER(CONCAT('%', :query, '%')))"
+    )
     Page<Book> searchBooks(@Param("query") String query, @Param("categoryId") Long categoryId, Pageable pageable);
 }
