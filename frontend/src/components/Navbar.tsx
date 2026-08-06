@@ -163,7 +163,7 @@ export default function Navbar() {
               style={{ color: 'var(--accent-color)' }}
             >
               <LayoutDashboard className="w-4 h-4" />
-              <span>My Portal</span>
+              <span>My Dashboard</span>
             </Link>
           )}
         </div>
