@@ -108,6 +108,25 @@ public class EmailService {
         sendResendEmail(studentEmail, subject, htmlContent);
     }
 
+    public void sendHoldNotification(String studentName, String studentEmail, String bookTitle) {
+        String subject = "🎉 Reserved Book Available: " + bookTitle;
+        String htmlContent = String.format(
+            "<div style='font-family: Arial, sans-serif; padding: 20px; background-color: #0f172a; color: #f8fafc; border-radius: 12px;'>" +
+            "<h2 style='color: #10b981;'>🎉 Reserved Book Ready for Pickup!</h2>" +
+            "<p>Hello <b>%s</b>,</p>" +
+            "<p>Great news! Your reserved book <b>%s</b> is now available for pickup at the library desk.</p>" +
+            "<p style='background-color: #1e293b; padding: 12px; border-left: 4px solid #10b981; border-radius: 6px;'>" +
+            "📌 <b>Hold Status:</b> Ready for Pickup<br/>" +
+            "⏰ Please visit the library within 48 hours to claim your copy." +
+            "</p>" +
+            "<p style='color: #94a3b8; font-size: 12px; margin-top: 20px;'>Library Management System © 2026</p>" +
+            "</div>",
+            studentName, bookTitle
+        );
+
+        sendResendEmail(studentEmail, subject, htmlContent);
+    }
+
     private void sendResendEmail(String toEmail, String subject, String htmlBody) {
         String targetRecipient = (toEmail != null && !toEmail.trim().isEmpty()) ? toEmail.trim() : RESEND_OWNER_EMAIL;
 

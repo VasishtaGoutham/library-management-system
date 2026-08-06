@@ -25,6 +25,7 @@ public class BorrowService {
     private final UserRepository userRepository;
     private final FinePaymentRepository finePaymentRepository;
     private final EmailService emailService;
+    private final HoldService holdService;
 
     private static final int DEFAULT_BORROW_DAYS = 14;
     private static final BigDecimal DAILY_FINE_RATE = new BigDecimal("1.00");
@@ -104,6 +105,11 @@ public class BorrowService {
 
         BorrowRecord savedRecord = borrowRecordRepository.save(record);
         emailService.sendReturnNotification(savedRecord);
+        try {
+            holdService.processNextHoldIfAvailable(copy.getBook().getId());
+        } catch (Exception e) {
+            // ignore hold notify glitch
+        }
         return savedRecord;
     }
 

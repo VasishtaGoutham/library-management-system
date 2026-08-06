@@ -144,6 +144,20 @@ export default function CatalogPage() {
     },
   });
 
+  // Request Hold Reservation Mutation
+  const requestHoldMutation = useMutation({
+    mutationFn: async (bookId: number) => {
+      const res = await api.post(`/holds/${bookId}`);
+      return res.data;
+    },
+    onSuccess: (data) => {
+      alert(`🎉 Hold request confirmed! You are #${data.queuePosition} in line for "${data.bookTitle}". You will receive an automated email when ready for pickup.`);
+    },
+    onError: (err: any) => {
+      alert(err.response?.data?.message || 'Failed to place hold request');
+    },
+  });
+
   // Delete Review Mutation
   const deleteReviewMutation = useMutation({
     mutationFn: async (reviewId: number) => {
@@ -316,16 +330,27 @@ export default function CatalogPage() {
                       <span>Details & Reviews</span>
                     </button>
 
-                    {/* View Barcodes Button */}
-                    <button
-                      onClick={() => setBarcodeModalBook(book)}
-                      className="p-1.5 rounded-lg border text-slate-400 hover:text-white transition flex items-center space-x-1 text-[11px]"
-                      style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}
-                      title="View Barcodes"
-                    >
-                      <QrCode className="w-3.5 h-3.5" />
-                      <span>Barcodes</span>
-                    </button>
+                    {book.availableCopies === 0 ? (
+                      <button
+                        onClick={() => requestHoldMutation.mutate(book.id)}
+                        disabled={requestHoldMutation.isPending}
+                        className="px-2.5 py-1 rounded-lg border text-[11px] font-bold text-amber-400 bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 transition flex items-center space-x-1"
+                        title="Request a hold reservation for this book"
+                      >
+                        <Bookmark className="w-3.5 h-3.5" />
+                        <span>Request Hold</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setBarcodeModalBook(book)}
+                        className="p-1.5 rounded-lg border text-slate-400 hover:text-white transition flex items-center space-x-1 text-[11px]"
+                        style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)' }}
+                        title="View Barcodes"
+                      >
+                        <QrCode className="w-3.5 h-3.5" />
+                        <span>Barcodes</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
