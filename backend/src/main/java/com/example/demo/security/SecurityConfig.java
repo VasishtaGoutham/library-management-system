@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/", "/api/v1/auth/**", "/api/v1/categories/**", "/api/v1/books/**", "/api/v1/dashboard/**").permitAll()
+                        auth.requestMatchers("/", "/api/v1/auth/**", "/api/v1/categories/**", "/api/v1/books/**", "/api/v1/dashboard/**", "/api/v1/course-reserves/**").permitAll()
                                 .requestMatchers("/api/v1/admin/**").hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated()
                 );
