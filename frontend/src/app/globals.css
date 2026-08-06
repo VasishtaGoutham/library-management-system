@@ -77,11 +77,18 @@ body {
   background: var(--text-muted);
 }
 
-/* Dynamic Theme Card */
+/* Dynamic Theme Card & Glassmorphism */
 .glass-card {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 20px 30px -10px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
 }
 
 @keyframes marquee {
@@ -103,12 +110,47 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 1rem;
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
 }
 
 .clean-card:hover {
   border-color: var(--accent-color);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.4), 0 0 15px var(--accent-light);
+}
+
+/* Interactive Button Hover & Click Actions */
+button, a {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+/* Glow Border Utility */
+.hover-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.hover-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, transparent, var(--accent-color), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hover-glow:hover::after {
+  opacity: 1;
 }
 
 /* Laser Scanner Animation */
@@ -126,4 +168,14 @@ body {
   background: var(--accent-color);
   box-shadow: 0 0 10px var(--accent-color);
   animation: laserScan 2.5s ease-in-out infinite;
+}
+
+/* Subtle Pulse Glow */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
 }

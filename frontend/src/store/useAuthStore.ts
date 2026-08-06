@@ -6,6 +6,7 @@ export interface User {
   fullName: string;
   email: string;
   studentIdNumber?: string;
+  maxBorrowLimit?: number;
   role: 'ROLE_ADMIN' | 'ROLE_STUDENT';
   token?: string;
   jwt?: string;

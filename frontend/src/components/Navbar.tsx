@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { 
   BookOpen, User, LogOut, LayoutDashboard, ShieldCheck, 
-  Palette, Check, Bell, Clock, AlertTriangle, CheckCircle2, ChevronRight, X
+  Palette, Check, Bell, Clock, AlertTriangle, CheckCircle2, ChevronRight, X, Sparkles, Bookmark, Award
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -21,6 +21,7 @@ export default function Navbar() {
   const { theme, setTheme } = useThemeStore();
   const [isThemeOpen, setIsThemeOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isProfileHovered, setIsProfileHovered] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -41,7 +42,7 @@ export default function Navbar() {
     }
   }, [setUser]);
 
-  // Fetch student active borrowing notifications
+  // Fetch student active borrowings
   const { data: rawBorrowings } = useQuery({
     queryKey: ['nav-notifications', user?.id],
     queryFn: async () => {
@@ -53,20 +54,6 @@ export default function Navbar() {
   });
 
   const myBorrowings = Array.isArray(rawBorrowings) ? rawBorrowings : [];
-  const urgentNotifications = myBorrowings.filter((b: any) => {
-    if (b.status === 'OVERDUE') return true;
-    if (b.dueDate) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const due = new Date(b.dueDate.split('T')[0]);
-      due.setHours(0, 0, 0, 0);
-      const diffMs = due.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-      return diffDays <= 2;
-    }
-    return false;
-  });
-  
   const activeLoans = myBorrowings.filter((b: any) => b.status === 'ISSUED' || b.status === 'OVERDUE');
   const overdueLoans = myBorrowings.filter((b: any) => b.status === 'OVERDUE');
 
@@ -95,10 +82,10 @@ export default function Navbar() {
         
         {/* Brand Logo */}
         <Link href="/" className="flex items-center space-x-2.5 group">
-          <div className="p-2 rounded-xl border transition" style={{ backgroundColor: 'var(--accent-light)', borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}>
+          <div className="p-2 rounded-xl border transition group-hover:rotate-12 group-hover:scale-110" style={{ backgroundColor: 'var(--accent-light)', borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}>
             <BookOpen className="w-5 h-5" />
           </div>
-          <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--text-main)' }}>
+          <span className="font-bold text-lg tracking-tight transition group-hover:opacity-90" style={{ color: 'var(--text-main)' }}>
             Library<span style={{ color: 'var(--accent-color)' }}>Universe</span>
           </span>
         </Link>
@@ -108,7 +95,7 @@ export default function Navbar() {
           {!user && (
             <Link
               href="/"
-              className={`transition ${pathname === '/' ? 'font-bold' : 'hover:opacity-80'}`}
+              className={`transition hover:scale-105 ${pathname === '/' ? 'font-bold' : 'hover:opacity-80'}`}
               style={{ color: pathname === '/' ? 'var(--accent-color)' : 'var(--text-main)' }}
             >
               Home
@@ -117,7 +104,7 @@ export default function Navbar() {
 
           <Link
             href="/catalog"
-            className={`transition ${pathname === '/catalog' ? 'font-bold' : 'hover:opacity-80'}`}
+            className={`transition hover:scale-105 ${pathname === '/catalog' ? 'font-bold' : 'hover:opacity-80'}`}
             style={{ color: pathname === '/catalog' ? 'var(--accent-color)' : 'var(--text-main)' }}
           >
             Browse Books
@@ -125,7 +112,7 @@ export default function Navbar() {
 
           <Link
             href="/study-spaces"
-            className={`transition ${pathname === '/study-spaces' ? 'font-bold' : 'hover:opacity-80'}`}
+            className={`transition hover:scale-105 ${pathname === '/study-spaces' ? 'font-bold' : 'hover:opacity-80'}`}
             style={{ color: pathname === '/study-spaces' ? 'var(--accent-color)' : 'var(--text-main)' }}
           >
             Study Rooms
@@ -133,7 +120,7 @@ export default function Navbar() {
 
           <Link
             href="/course-reserves"
-            className={`transition ${pathname === '/course-reserves' ? 'font-bold' : 'hover:opacity-80'}`}
+            className={`transition hover:scale-105 ${pathname === '/course-reserves' ? 'font-bold' : 'hover:opacity-80'}`}
             style={{ color: pathname === '/course-reserves' ? 'var(--accent-color)' : 'var(--text-main)' }}
           >
             Course Reserves
@@ -143,7 +130,7 @@ export default function Navbar() {
             <>
               <a
                 href="/#about"
-                className="transition hover:opacity-80"
+                className="transition hover:opacity-80 hover:scale-105"
                 style={{ color: 'var(--text-main)' }}
               >
                 About
@@ -151,7 +138,7 @@ export default function Navbar() {
 
               <a
                 href="/#contact"
-                className="transition hover:opacity-80"
+                className="transition hover:opacity-80 hover:scale-105"
                 style={{ color: 'var(--text-main)' }}
               >
                 Contact
@@ -162,7 +149,7 @@ export default function Navbar() {
           {user?.role === 'ROLE_ADMIN' && (
             <Link
               href="/admin/dashboard"
-              className="flex items-center space-x-1 font-semibold transition text-emerald-500"
+              className="flex items-center space-x-1 font-semibold transition text-emerald-500 hover:scale-105"
             >
               <ShieldCheck className="w-4 h-4" />
               <span>Admin Console</span>
@@ -172,7 +159,7 @@ export default function Navbar() {
           {user?.role === 'ROLE_STUDENT' && (
             <Link
               href="/student/dashboard"
-              className="flex items-center space-x-1 font-semibold transition"
+              className="flex items-center space-x-1 font-semibold transition hover:scale-105"
               style={{ color: 'var(--accent-color)' }}
             >
               <LayoutDashboard className="w-4 h-4" />
@@ -190,7 +177,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className="p-2 rounded-xl border relative transition hover:opacity-80"
+                className="p-2 rounded-xl border relative transition hover:scale-105 active:scale-95"
                 style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
                 title="Notifications & Due Date Warnings"
               >
@@ -259,7 +246,7 @@ export default function Navbar() {
                     <Link
                       href="/student/dashboard"
                       onClick={() => setIsNotifOpen(false)}
-                      className="w-full py-2 rounded-xl text-xs font-bold text-center block text-white transition shadow-sm hover:opacity-90 mt-2"
+                      className="w-full py-2 rounded-xl text-xs font-bold text-center block text-white transition shadow-sm hover:opacity-90 hover:scale-[1.02] mt-2"
                       style={{ backgroundColor: 'var(--accent-color)' }}
                     >
                       View All My Loans & Portal →
@@ -275,7 +262,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setIsThemeOpen(!isThemeOpen)}
-              className="p-2 rounded-xl border flex items-center space-x-1.5 text-xs font-medium transition"
+              className="p-2 rounded-xl border flex items-center space-x-1.5 text-xs font-medium transition hover:scale-105"
               style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
               title="Change Color Theme"
             >
@@ -284,7 +271,7 @@ export default function Navbar() {
             </button>
 
             {isThemeOpen && (
-              <div className="absolute right-0 mt-2 w-56 rounded-2xl border shadow-2xl p-2 space-y-1 z-50" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+              <div className="absolute right-0 mt-2 w-56 rounded-2xl border shadow-2xl p-2 space-y-1 z-50 animate-in fade-in zoom-in-95" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                 <p className="text-[10px] uppercase tracking-wider font-bold px-3 py-1 text-slate-400">Select Theme Aesthetic</p>
                 {themes.map((t) => (
                   <button
@@ -293,7 +280,7 @@ export default function Navbar() {
                       setTheme(t.id);
                       setIsThemeOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition text-left hover:opacity-80"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition text-left hover:scale-[1.02]"
                     style={{
                       backgroundColor: theme === t.id ? 'var(--accent-light)' : 'transparent',
                       color: theme === t.id ? 'var(--accent-color)' : 'var(--text-main)'
@@ -310,42 +297,104 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* User Profile Avatar with Hover Popover */}
           {user ? (
-            <div className="flex items-center space-x-3">
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsProfileHovered(true)}
+              onMouseLeave={() => setIsProfileHovered(false)}
+            >
               <Link
                 href={user.role === 'ROLE_ADMIN' ? '/admin/dashboard' : '/student/profile'}
-                className="flex items-center space-x-2 px-3 py-1.5 rounded-xl border hover:opacity-80 transition cursor-pointer group"
+                className="flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition cursor-pointer group hover:scale-105"
                 style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
-                title="View & Edit My Profile"
               >
-                <User className="w-4 h-4 transition group-hover:scale-110" style={{ color: 'var(--accent-color)' }} />
+                <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-black text-xs group-hover:bg-indigo-600 group-hover:text-white transition">
+                  {user.fullName.charAt(0)}
+                </div>
                 <div className="text-left hidden sm:block">
                   <p className="font-semibold text-xs leading-tight transition group-hover:text-indigo-400" style={{ color: 'var(--text-main)' }}>{user.fullName}</p>
                   <p className="text-[10px] capitalize" style={{ color: 'var(--text-muted)' }}>{user.role === 'ROLE_ADMIN' ? 'Admin' : 'Student'}</p>
                 </div>
               </Link>
 
-              <button
-                onClick={handleLogout}
-                className="p-2 rounded-xl border text-slate-400 hover:text-rose-500 transition"
-                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
-                title="Sign Out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+              {/* Interactive Hover Card Overlay */}
+              {isProfileHovered && (
+                <div className="absolute right-0 mt-2 w-72 rounded-2xl border shadow-2xl p-4 space-y-3 z-50 animate-in fade-in slide-in-from-top-2 backdrop-blur-xl" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+                  <div className="flex items-center space-x-3 border-b pb-3" style={{ borderColor: 'var(--card-border)' }}>
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-extrabold text-base shadow-lg shadow-indigo-500/30">
+                      {user.fullName.charAt(0)}
+                    </div>
+                    <div className="space-y-0.5">
+                      <h4 className="font-extrabold text-xs" style={{ color: 'var(--text-main)' }}>{user.fullName}</h4>
+                      <p className="text-[11px] text-slate-400">{user.email}</p>
+                      <span className="inline-block px-2 py-0.5 rounded text-[9px] font-black uppercase font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mt-1">
+                        {user.role === 'ROLE_ADMIN' ? '⚡ System Administrator' : '🎓 Verified Student'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {user.role === 'ROLE_STUDENT' && (
+                    <div className="grid grid-cols-2 gap-2 text-center text-xs py-1">
+                      <div className="p-2 rounded-xl border bg-slate-900/50" style={{ borderColor: 'var(--card-border)' }}>
+                        <span className="text-[10px] text-slate-400 block font-semibold">Active Loans</span>
+                        <strong className="text-sm font-extrabold text-indigo-400">{activeLoans.length} / {user.maxBorrowLimit || 3}</strong>
+                      </div>
+                      <div className="p-2 rounded-xl border bg-slate-900/50" style={{ borderColor: 'var(--card-border)' }}>
+                        <span className="text-[10px] text-slate-400 block font-semibold">Overdue Fines</span>
+                        <strong className="text-sm font-extrabold text-emerald-400">$0.00</strong>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-1 text-xs font-semibold pt-1">
+                    <Link
+                      href={user.role === 'ROLE_ADMIN' ? '/admin/dashboard' : '/student/dashboard'}
+                      className="w-full px-3 py-2 rounded-xl flex items-center justify-between transition hover:bg-indigo-600 hover:text-white"
+                      style={{ color: 'var(--text-main)' }}
+                    >
+                      <span className="flex items-center space-x-2">
+                        <LayoutDashboard className="w-3.5 h-3.5" />
+                        <span>Go to Dashboard</span>
+                      </span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+
+                    <Link
+                      href="/student/profile"
+                      className="w-full px-3 py-2 rounded-xl flex items-center justify-between transition hover:bg-indigo-600 hover:text-white"
+                      style={{ color: 'var(--text-main)' }}
+                    >
+                      <span className="flex items-center space-x-2">
+                        <User className="w-3.5 h-3.5" />
+                        <span>My Account Settings</span>
+                      </span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full py-2 rounded-xl border text-xs font-bold text-rose-400 bg-rose-500/10 border-rose-500/20 hover:bg-rose-500 hover:text-white transition flex items-center justify-center space-x-1"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center space-x-2 text-xs">
               <Link
                 href="/login?mode=login"
-                className="px-3.5 py-2 rounded-xl font-medium transition hover:opacity-80"
+                className="px-3.5 py-2 rounded-xl font-medium transition hover:opacity-80 hover:scale-105"
                 style={{ color: 'var(--text-main)' }}
               >
                 Login
               </Link>
               <Link
                 href="/login?mode=register"
-                className="px-4 py-2 rounded-xl text-white font-medium transition shadow-sm hover:opacity-90"
+                className="px-4 py-2 rounded-xl text-white font-medium transition shadow-sm hover:opacity-90 hover:scale-105"
                 style={{ backgroundColor: 'var(--accent-color)' }}
               >
                 Sign Up

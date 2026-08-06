@@ -277,12 +277,12 @@ function CatalogContent() {
               >
                 <div>
                   {/* Book Cover Image */}
-                  <div className="h-52 w-full relative bg-slate-950 overflow-hidden flex items-center justify-center">
+                  <div className="h-52 w-full relative bg-slate-950 overflow-hidden flex items-center justify-center group/cover">
                     {book.coverImageUrl ? (
                       <img
                         src={book.coverImageUrl}
                         alt={book.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover/cover:scale-110"
                       />
                     ) : (
                       <div className="text-center p-4">
@@ -291,8 +291,38 @@ function CatalogContent() {
                       </div>
                     )}
 
+                    {/* Interactive Quick Action Hover Overlay */}
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/cover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-2.5 p-4">
+                      <button
+                        onClick={() => setSelectedBook(book)}
+                        className="w-full py-2 rounded-xl text-xs font-extrabold bg-indigo-600 text-white shadow-lg shadow-indigo-600/40 hover:bg-indigo-500 transition flex items-center justify-center gap-1.5 translate-y-2 group-hover/cover:translate-y-0 duration-300"
+                      >
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span>Quick View & Reviews</span>
+                      </button>
+
+                      {book.availableCopies === 0 ? (
+                        <button
+                          onClick={() => requestHoldMutation.mutate(book.id)}
+                          disabled={requestHoldMutation.isPending}
+                          className="w-full py-2 rounded-xl text-xs font-extrabold bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/30 hover:bg-amber-400 transition flex items-center justify-center gap-1.5 translate-y-2 group-hover/cover:translate-y-0 duration-300"
+                        >
+                          <Bookmark className="w-3.5 h-3.5" />
+                          <span>Request Hold Reservation</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setBarcodeModalBook(book)}
+                          className="w-full py-2 rounded-xl text-xs font-extrabold bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 hover:bg-emerald-500 transition flex items-center justify-center gap-1.5 translate-y-2 group-hover/cover:translate-y-0 duration-300"
+                        >
+                          <QrCode className="w-3.5 h-3.5" />
+                          <span>View Shelf Barcodes</span>
+                        </button>
+                      )}
+                    </div>
+
                     {/* Stock Status Badge */}
-                    <div className="absolute top-3 left-3">
+                    <div className="absolute top-3 left-3 z-10">
                       {book.availableCopies > 0 ? (
                         <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/90 text-white shadow-md backdrop-blur-md flex items-center space-x-1">
                           <CheckCircle2 className="w-3 h-3" />
