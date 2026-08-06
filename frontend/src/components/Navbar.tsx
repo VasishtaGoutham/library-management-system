@@ -132,21 +132,21 @@ export default function Navbar() {
 
           {!user && (
             <>
-              <a
+              <Link
                 href="/#about"
                 className="transition hover:opacity-80 hover:scale-105"
                 style={{ color: 'var(--text-main)' }}
               >
                 About
-              </a>
+              </Link>
 
-              <a
-                href="/#contact"
-                className="transition hover:opacity-80 hover:scale-105"
-                style={{ color: 'var(--text-main)' }}
+              <Link
+                href="/contact"
+                className={`transition hover:opacity-80 hover:scale-105 ${pathname === '/contact' ? 'font-bold' : ''}`}
+                style={{ color: pathname === '/contact' ? 'var(--accent-color)' : 'var(--text-main)' }}
               >
-                Contact
-              </a>
+                Contact Desk
+              </Link>
             </>
           )}
 
