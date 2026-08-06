@@ -72,16 +72,17 @@ export default function CatalogPage() {
 
 
   // Fetch Categories
-  const { data: categories = [] } = useQuery<Category[]>({
+  const { data: rawCategories } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
       const res = await api.get('/categories');
       return res.data;
     },
   });
+  const categories: Category[] = Array.isArray(rawCategories) ? rawCategories : [];
 
   // Fetch Books
-  const { data: books = [], isLoading: isLoadingBooks } = useQuery<Book[]>({
+  const { data: rawBooks, isLoading: isLoadingBooks } = useQuery({
     queryKey: ['books', selectedCategory, search],
     queryFn: async () => {
       let url = '/books';
@@ -94,9 +95,10 @@ export default function CatalogPage() {
       return res.data;
     },
   });
+  const books: Book[] = Array.isArray(rawBooks) ? rawBooks : [];
 
   // Fetch Barcodes for selected modal book
-  const { data: bookCopies = [] } = useQuery({
+  const { data: rawBookCopies } = useQuery({
     queryKey: ['book-copies', barcodeModalBook?.id],
     queryFn: async () => {
       if (!barcodeModalBook) return [];
@@ -105,6 +107,7 @@ export default function CatalogPage() {
     },
     enabled: !!barcodeModalBook,
   });
+  const bookCopies = Array.isArray(rawBookCopies) ? rawBookCopies : [];
 
   // Fetch Reviews & Ratings for selected book
   const { data: ratingSummary, refetch: refetchReviews } = useQuery<BookRatingSummary>({
@@ -459,7 +462,7 @@ export default function CatalogPage() {
 
               {/* Reviews List */}
               <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
-                {(!ratingSummary?.reviews || ratingSummary.reviews.length === 0) ? (
+                {(!ratingSummary?.reviews || !Array.isArray(ratingSummary.reviews) || ratingSummary.reviews.length === 0) ? (
                   <p className="text-center py-6 text-xs text-slate-500">No student reviews yet. Be the first to leave a review!</p>
                 ) : (
                   ratingSummary.reviews.map((rev) => (
