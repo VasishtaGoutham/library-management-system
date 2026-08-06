@@ -110,14 +110,23 @@ export default function Navbar() {
           )}
 
           {user?.role === 'ROLE_STUDENT' && (
-            <Link
-              href="/student/dashboard"
-              className="flex items-center space-x-1 font-semibold transition"
-              style={{ color: 'var(--accent-color)' }}
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>My Portal</span>
-            </Link>
+            <>
+              <Link
+                href="/student/dashboard"
+                className="flex items-center space-x-1 font-semibold transition"
+                style={{ color: 'var(--accent-color)' }}
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>My Portal</span>
+              </Link>
+              <Link
+                href="/student/profile"
+                className="flex items-center space-x-1 font-semibold transition text-indigo-400 hover:opacity-80"
+              >
+                <User className="w-4 h-4" />
+                <span>My Profile</span>
+              </Link>
+            </>
           )}
         </div>
 
