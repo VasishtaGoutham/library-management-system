@@ -20,9 +20,10 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Query("SELECT DISTINCT b FROM Book b LEFT JOIN b.copies c WHERE b.isDeleted = false AND " +
            "(:categoryId IS NULL OR b.category.id = :categoryId) AND " +
-           "(:query IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "(:query IS NULL OR :query = '' OR LOWER(b.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(b.author) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(b.isbn) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "LOWER(c.barcode) LIKE LOWER(CONCAT('%', :query, '%')))")
+           "LOWER(c.barcode) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "CAST(b.id AS string) LIKE CONCAT('%', :query, '%'))")
     Page<Book> searchBooks(@Param("query") String query, @Param("categoryId") Long categoryId, Pageable pageable);
 }
