@@ -69,15 +69,7 @@ export default function CatalogPage() {
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [reviewMessage, setReviewMessage] = useState<string | null>(null);
 
-  // Authentication Guard: Redirect to /login if guest
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (!token && !user) {
-        router.push('/login');
-      }
-    }
-  }, [user, router]);
+
 
   // Fetch Categories
   const { data: categories = [] } = useQuery<Category[]>({
