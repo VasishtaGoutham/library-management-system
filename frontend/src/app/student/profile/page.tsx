@@ -72,7 +72,7 @@ export default function StudentProfilePage() {
     },
     onSuccess: (data) => {
       setUser(data);
-      if (data.token) {
+      if (data.token && typeof window !== 'undefined') {
         localStorage.setItem('token', data.token);
       }
       queryClient.invalidateQueries({ queryKey: ['my-profile'] });

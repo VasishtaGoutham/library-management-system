@@ -71,9 +71,11 @@ export default function CatalogPage() {
 
   // Authentication Guard: Redirect to /login if guest
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token && !user) {
-      router.push('/login');
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (!token && !user) {
+        router.push('/login');
+      }
     }
   }, [user, router]);
 
