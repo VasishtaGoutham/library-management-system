@@ -41,6 +41,7 @@ public class AuthService {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+        String token = jwtUtils.generateTokenFromUsername(userDetails.getUsername());
 
         String role = userDetails.getAuthorities().stream()
                 .findFirst().map(item -> item.getAuthority()).orElse("ROLE_STUDENT");
@@ -51,6 +52,7 @@ public class AuthService {
                 .email(userDetails.getEmail())
                 .studentIdNumber(userDetails.getStudentIdNumber())
                 .role(role)
+                .token(token)
                 .message("Login successful")
                 .build();
 
@@ -85,12 +87,15 @@ public class AuthService {
 
         userRepository.save(user);
 
+        String token = jwtUtils.generateTokenFromUsername(user.getEmail());
+
         AuthResponse response = AuthResponse.builder()
                 .id(user.getId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .studentIdNumber(user.getStudentIdNumber())
                 .role(user.getRole().name())
+                .token(token)
                 .message("User registered successfully")
                 .build();
 
