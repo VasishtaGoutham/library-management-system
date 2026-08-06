@@ -311,7 +311,7 @@ export default function AdminDashboardPage() {
 
           <div className="clean-card p-4 space-y-1">
             <span className="text-[11px] font-medium block" style={{ color: 'var(--text-muted)' }}>Unpaid Fines</span>
-            <p className="text-xl font-extrabold text-rose-500">${(stats?.totalUnpaidFines || 0).toFixed(2)}</p>
+            <p className="text-xl font-extrabold text-rose-500">${(stats?.totalUnpaidFines || stats?.totalFinesCollected || 0).toFixed(2)}</p>
           </div>
 
           <div className="clean-card p-4 space-y-1">
