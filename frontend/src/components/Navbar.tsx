@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import AnnouncementTicker from '@/components/AnnouncementTicker';
+
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -51,6 +53,20 @@ export default function Navbar() {
   });
 
   const myBorrowings = Array.isArray(rawBorrowings) ? rawBorrowings : [];
+  const urgentNotifications = myBorrowings.filter((b: any) => {
+    if (b.status === 'OVERDUE') return true;
+    if (b.dueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const due = new Date(b.dueDate.split('T')[0]);
+      due.setHours(0, 0, 0, 0);
+      const diffMs = due.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      return diffDays <= 2;
+    }
+    return false;
+  });
+  
   const activeLoans = myBorrowings.filter((b: any) => b.status === 'ISSUED' || b.status === 'OVERDUE');
   const overdueLoans = myBorrowings.filter((b: any) => b.status === 'OVERDUE');
 
@@ -66,7 +82,7 @@ export default function Navbar() {
   };
 
   const themes: { id: ThemeMode; label: string; color: string }[] = [
-    { id: 'obsidian', label: '🌑 Obsidian (Vercel Dark)', color: '#6366f1' },
+    { id: 'obsidian', label: '🌙 Obsidian Dark (Apple Dark)', color: '#6366f1' },
     { id: 'porcelain', label: '☀️ Porcelain (Stripe Light)', color: '#2563eb' },
     { id: 'emerald', label: '🌲 Emerald (Cyber Matrix)', color: '#10b981' },
     { id: 'violet', label: '🔮 Violet (Neon Cyberpunk)', color: '#a855f7' },
@@ -74,6 +90,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b backdrop-blur-md transition-colors duration-300" style={{ backgroundColor: 'var(--header-bg)', borderColor: 'var(--card-border)' }}>
+      <AnnouncementTicker />
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         
         {/* Brand Logo */}
