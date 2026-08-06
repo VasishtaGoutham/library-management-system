@@ -113,6 +113,16 @@ export default function AdminDashboardPage() {
     },
   });
 
+  // Holds Log Query
+  const { data: rawHolds = [] } = useQuery({
+    queryKey: ['admin-holds'],
+    queryFn: async () => {
+      const res = await api.get('/holds/all');
+      return res.data;
+    },
+  });
+  const holds = Array.isArray(rawHolds) ? rawHolds : [];
+
   // Add Category Mutation
   const addCategoryMutation = useMutation({
     mutationFn: async () => {
@@ -317,6 +327,68 @@ export default function AdminDashboardPage() {
           <div className="clean-card p-4 space-y-1">
             <span className="text-[11px] font-medium block" style={{ color: 'var(--text-muted)' }}>Categories</span>
             <p className="text-xl font-extrabold" style={{ color: 'var(--text-main)' }}>{categories.length}</p>
+          </div>
+        </div>
+
+        {/* Student Book Holds & Reservation Queue Table */}
+        <div className="clean-card p-6 space-y-4">
+          <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
+            <span className="font-semibold text-sm flex items-center gap-2" style={{ color: 'var(--text-main)' }}>
+              <Bookmark className="w-4 h-4 text-amber-400" />
+              <span>Book Holds & Reservation Queue ({holds.length})</span>
+            </span>
+            <span className="text-amber-400 text-[11px] font-bold">
+              {holds.filter((h: any) => h.status === 'PENDING').length} Pending Requests
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs" style={{ color: 'var(--text-main)' }}>
+              <thead className="uppercase font-semibold text-[10px] border-b" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--card-border)', color: 'var(--text-muted)' }}>
+                <tr>
+                  <th className="py-2.5 px-3">Hold ID</th>
+                  <th className="py-2.5 px-3">Student Name</th>
+                  <th className="py-2.5 px-3">Book Title</th>
+                  <th className="py-2.5 px-3">Queue Position</th>
+                  <th className="py-2.5 px-3">Request Date</th>
+                  <th className="py-2.5 px-3">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
+                {holds.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-6 text-center" style={{ color: 'var(--text-muted)' }}>
+                      No active student hold requests in queue.
+                    </td>
+                  </tr>
+                ) : (
+                  holds.map((h: any) => (
+                    <tr key={h.id} className="hover:opacity-80 transition">
+                      <td className="py-2.5 px-3 font-mono" style={{ color: 'var(--text-muted)' }}>#{h.id}</td>
+                      <td className="py-2.5 px-3 font-semibold" style={{ color: 'var(--text-main)' }}>{h.studentName}</td>
+                      <td className="py-2.5 px-3">{h.bookTitle}</td>
+                      <td className="py-2.5 px-3 font-mono font-extrabold text-amber-400">
+                        {h.status === 'PENDING' ? `#${h.queuePosition || 1} in line` : '-'}
+                      </td>
+                      <td className="py-2.5 px-3" style={{ color: 'var(--text-muted)' }}>
+                        {h.requestDate ? h.requestDate.split('T')[0] : '-'}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold border ${
+                          h.status === 'FULFILLED'
+                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                            : h.status === 'CANCELLED'
+                            ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                            : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                        }`}>
+                          {h.status === 'FULFILLED' ? 'Ready / Fulfilled' : h.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 

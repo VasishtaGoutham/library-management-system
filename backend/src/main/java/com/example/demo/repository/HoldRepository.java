@@ -13,6 +13,7 @@ public interface HoldRepository extends JpaRepository<HoldRequest, Long> {
     List<HoldRequest> findByBookIdAndStatusOrderByRequestDateAsc(Long bookId, HoldStatus status);
 
     List<HoldRequest> findByStudentIdOrderByRequestDateDesc(Long studentId);
+    List<HoldRequest> findAllByOrderByRequestDateDesc();
 
     boolean existsByBookIdAndStudentIdAndStatus(Long bookId, Long studentId, HoldStatus status);
 

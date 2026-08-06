@@ -33,6 +33,12 @@ public class HoldController {
         return ResponseEntity.ok(holdService.getMyHolds(userDetails.getId()));
     }
 
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<HoldResponse>> getAllHolds() {
+        return ResponseEntity.ok(holdService.getAllHolds());
+    }
+
     @DeleteMapping("/{holdId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> cancelHold(

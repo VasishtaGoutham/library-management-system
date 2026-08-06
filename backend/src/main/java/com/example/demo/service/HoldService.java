@@ -58,6 +58,13 @@ public class HoldService {
                 .collect(Collectors.toList());
     }
 
+    public List<HoldResponse> getAllHolds() {
+        return holdRepository.findAllByOrderByRequestDateDesc()
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
     public void cancelHold(Long holdId, Long studentId) {
         HoldRequest hold = holdRepository.findById(holdId)
                 .orElseThrow(() -> new RuntimeException("Hold request not found"));
