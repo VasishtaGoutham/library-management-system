@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { 
   Search, BookOpen, Layers, QrCode, CheckCircle2, 
   XCircle, Filter, X, ChevronRight, Copy, Check, Tag, 
-  Calendar, Globe, Bookmark, Star, MessageSquare, Send, Trash2, UserCheck
+  Calendar, Globe, Bookmark, Star, MessageSquare, Send, Trash2, UserCheck, Lightbulb
 } from 'lucide-react';
 
 interface Book {
@@ -257,10 +257,20 @@ export default function CatalogPage() {
             ))}
           </div>
         ) : books.length === 0 ? (
-          <div className="py-20 text-center space-y-3 border rounded-2xl" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <BookOpen className="w-12 h-12 mx-auto text-slate-500 opacity-50" />
-            <h3 className="font-bold text-base">No books match your criteria</h3>
-            <p className="text-xs text-slate-400">Try adjusting your search keywords or category filters.</p>
+          <div className="py-16 text-center space-y-4 border rounded-2xl" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <BookOpen className="w-12 h-12 mx-auto text-indigo-400 opacity-80" />
+            <div>
+              <h3 className="font-bold text-base" style={{ color: 'var(--text-main)' }}>No books match your search criteria</h3>
+              <p className="text-xs text-slate-400 mt-1">Can't find the book you are looking for in the library?</p>
+            </div>
+
+            <a
+              href="/student/dashboard"
+              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-600/20"
+            >
+              <Lightbulb className="w-4 h-4 text-amber-300" />
+              <span>Request Book for Library Purchase</span>
+            </a>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
