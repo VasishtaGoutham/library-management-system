@@ -96,7 +96,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="w-4 h-4 shrink-0 text-amber-400" />
-                <span>Help Desk: +1 (800) 555-LIB-UNIV</span>
+                <span>Help Desk: <strong>+91 1800 123 4567</strong></span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 shrink-0 text-purple-400" />

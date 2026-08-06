@@ -303,7 +303,7 @@ export default function Home() {
                     </div>
                     <div>
                       <span className="font-bold block" style={{ color: 'var(--text-main)' }}>Direct Desk Phone Hotline</span>
-                      <span className="text-[11px] font-mono text-indigo-400">+1 (800) 555-LIB-UNIV</span>
+                      <span className="text-[11px] font-mono text-indigo-400">+91 1800 123 4567 / +91 98765 43210</span>
                     </div>
                   </div>
 
