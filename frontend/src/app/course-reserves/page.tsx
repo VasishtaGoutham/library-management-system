@@ -183,7 +183,7 @@ export default function CourseReservesPage() {
                           {tb.availableCopies} Copies Available in Library
                         </span>
                         <Link
-                          href={`/catalog?search=${encodeURIComponent(tb.title)}`}
+                          href={`/catalog?search=${encodeURIComponent(tb.title.split(':')[0].split('(')[0].trim())}`}
                           className="text-xs font-bold text-indigo-400 hover:underline flex items-center gap-1"
                         >
                           <span>Locate in Catalog</span>
