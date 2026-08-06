@@ -85,17 +85,19 @@ export default function CatalogPage() {
   const { data: rawBooks, isLoading: isLoadingBooks } = useQuery({
     queryKey: ['books', selectedCategory, search],
     queryFn: async () => {
-      let url = '/books';
-      const params: string[] = [];
-      if (selectedCategory) params.push(`categoryId=${selectedCategory}`);
-      if (search) params.push(`search=${encodeURIComponent(search)}`);
-      if (params.length > 0) url += `?${params.join('&')}`;
+      let url = '/books?size=500';
+      if (selectedCategory) url += `&categoryId=${selectedCategory}`;
+      if (search) url += `&query=${encodeURIComponent(search)}`;
 
       const res = await api.get(url);
       return res.data;
     },
   });
-  const books: Book[] = Array.isArray(rawBooks) ? rawBooks : [];
+  const books: Book[] = Array.isArray(rawBooks)
+    ? rawBooks
+    : Array.isArray(rawBooks?.content)
+    ? rawBooks.content
+    : [];
 
   // Fetch Barcodes for selected modal book
   const { data: rawBookCopies } = useQuery({
