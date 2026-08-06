@@ -6,12 +6,12 @@ const getBaseUrl = () => {
   }
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
-    if (host.includes('vercel.app') || host.includes('loca.lt') || host.includes('lhr.life')) {
-      return 'https://library-universe-api-v1.loca.lt/api/v1';
+    if (host.includes('vercel.app') || host.includes('railway.app') || host.includes('loca.lt')) {
+      return 'https://library-management-system-production-88c1.up.railway.app/api/v1';
     }
     return `http://${host}:8080/api/v1`;
   }
-  return 'https://library-universe-api-v1.loca.lt/api/v1';
+  return 'https://library-management-system-production-88c1.up.railway.app/api/v1';
 };
 
 const api = axios.create({
