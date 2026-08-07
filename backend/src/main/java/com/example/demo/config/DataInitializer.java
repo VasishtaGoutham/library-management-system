@@ -299,22 +299,35 @@ public class DataInitializer implements CommandLineRunner {
         addBook("Meditations", "Marcus Aurelius", "9780812968255", "Modern Library", "Gregory Hays Translation", 2002, "English", "Stoic philosophy and personal reflections of the Roman Emperor.", hum, 5);
         addBook("The Prince", "Niccolo Machiavelli", "9780140449150", "Penguin Classics", "Translated Edition", 2003, "English", "Classic treatise on political power, statecraft, and pragmatism.", hum, 3);
 
-        // Category 11: Indian Epics, Mythology & Classics
+        // Category 11: Indian Epics, Mythology & Regional Classics
         addBook("The Ramayana of Valmiki", "Sage Valmiki", "9780143064320", "Penguin Classics", "Critical Edition", 2008, "Sanskrit", "The timeless ancient Indian epic detailing the life, virtue, and journey of Lord Rama.", epics, 5);
         addBook("The Mahabharata", "Sage Vyasa", "9780143100133", "Penguin Classics", "Unabridged Edition", 2010, "Sanskrit", "The grand epic of Kurukshetra, duty, dharma, and royal dynasty.", epics, 5);
         addBook("The Bhagavad Gita", "Sage Vyasa / Eknath Easwaran", "9781586380199", "Nilgiri Press", "2nd Edition", 2007, "Sanskrit", "The sacred 700-verse dialogue on karma, yoga, dharma, and self-realization.", epics, 6);
         addBook("Panchatantra: Ancient Fables of India", "Vishnu Sharma", "9788172230807", "HarperCollins", "Classic Edition", 1993, "Sanskrit", "Interwoven animal fables teaching political wisdom, strategy, and human behavior.", epics, 4);
+        addBook("Abhijnanasakuntalam", "Kalidasa", "9788120800366", "Motilal Banarsidass", "Classic Translation", 1984, "Sanskrit", "Masterpiece Sanskrit drama of Shakuntala and King Dushyanta.", epics, 4);
+        
+        // Telugu Classics
+        addBook("Maha Prasthanam", "Sri Sri (Srirangam Srinivasa Rao)", "9788126027581", "Sahitya Akademi", "Centenary Edition", 1950, "Telugu", "Landmark revolutionary Telugu poetry collection that transformed modern Telugu literature.", epics, 5);
+        addBook("Vemana Satakam", "Kavi Vemana", "9788177641201", "Vavilla Ramaswamy Sastrulu", "Traditional Edition", 1910, "Telugu", "Profound philosophical and moral 4-line Telugu verses on life and ethics.", epics, 5);
+        addBook("Kanyasulkam", "Gurazada Apparao", "9788126006427", "Sahitya Akademi", "Critical Edition", 1897, "Telugu", "First social play in Telugu literature exposing social customs with humor.", epics, 4);
+        addBook("Amrutham Kurisina Ratri", "Devarakonda Balagangadhara Tilak", "9788177645018", "Visalaandhra Publishing", "Collector's Edition", 1968, "Telugu", "Celebrated romantic and humanistic Telugu poetic masterpiece.", epics, 4);
+        addBook("Srimad Ramayanamu (Kalpavrukshamu)", "Viswanatha Satyanarayana", "9788187802102", "Viswanatha Publications", "Jnanpith Edition", 1967, "Telugu", "Jnanpith Award-winning magnificent Telugu retelling of Valmiki Ramayana.", epics, 4);
+
+        // Tamil, Kannada & Malayalam Classics
         addBook("Ponniyin Selvan (The Son of Ponni)", "Kalki Krishnamurthy", "9789353335502", "Pustaka Digital", "Illustrated Edition", 1954, "Tamil", "The legendary historical fiction epic of the Chola Dynasty.", epics, 5);
-        addBook("Shiva Trilogy: The Immortals of Meluha", "Amish Tripathi", "9789380658742", "Westland", "1st Edition", 2010, "Hindi", "Mythological reimagining of Shiva as a Tibetan warrior in the Indus valley.", epics, 5);
-        addBook("Chanakya Neeti: Ancient Indian Strategy", "Chanakya (Kautilya)", "9788128822506", "Diamond Books", "Revised Edition", 2011, "Sanskrit", "Aphorisms on statecraft, governance, ethics, and personal leadership.", epics, 4);
+        addBook("Tirukkural", "Thiruvalluvar", "9788120601383", "Asian Educational Services", "Bilingual Edition", 1999, "Tamil", "1,330 Tamil couplets on virtue, wealth, and love.", epics, 5);
+        addBook("Karvalo", "K.P. Poornachandra Tejasvi", "9788172861216", "Pustaka Media", "Classic Edition", 1980, "Kannada", "Celebrated Kannada novel exploring nature, mystery, and scientific quest.", epics, 4);
+        addBook("Samskara", "U.R. Ananthamurthy", "9780195623000", "Oxford University Press", "A.K. Ramanujan Translation", 1965, "Kannada", "Profound Kannada novel examining tradition, ethics, and existential crisis.", epics, 4);
+        addBook("Chemmeen", "Thakazhi Sivasankara Pillai", "9788126401666", "DC Books", "Golden Edition", 1956, "Malayalam", "Tragic Malayalam coastal love story of Karuthamma and Pareekutty.", epics, 4);
+        addBook("Randumoozham (The Second Turn)", "M.T. Vasudevan Nair", "9788126404735", "DC Books", "Jnanpith Edition", 1984, "Malayalam", "Jnanpith Award-winning retelling of Mahabharata from Bhima's perspective.", epics, 5);
+
+        // Hindi, Bengali & Regional Classics
         addBook("Godan (The Gift of a Cow)", "Munshi Premchand", "9788121600811", "Rajkamal Prakashan", "Classic Edition", 1936, "Hindi", "The masterpiece Hindi realistic novel depicting rural Indian peasantry.", epics, 4);
-        addBook("Gitanjali (Song Offerings)", "Rabindranath Tagore", "9788171672325", "Rupa Publications", "Nobel Edition", 1912, "Bengali", "Nobel Prize-winning collection of spiritual, devotional Bengali poems.", epics, 4);
         addBook("Madhushala (House of Wine)", "Harivansh Rai Bachchan", "9788121612715", "Rajpal & Sons", "Anniversary Edition", 1935, "Hindi", "Famous neo-romantic 136-quatrain Hindi poem on life's metaphors.", epics, 4);
-        addBook("Malgudi Days", "R.K. Narayan", "9780140055016", "Penguin Books", "Reprint Edition", 1982, "English", "Enchanting short stories set in the fictional South Indian town of Malgudi.", epics, 4);
-        addBook("Train to Pakistan", "Khushwant Singh", "9780143065884", "Penguin India", "Anniversary Edition", 1956, "Punjabi", "Harrowing novel set during the Partition of India in 1947.", epics, 3);
-        addBook("Autobiography of a Yogi", "Paramahansa Yogananda", "9788189535513", "Yogoda Satsanga Society", "Original Edition", 1946, "Bengali", "Spiritual classic recounting meetings with saints, yogis, and Kriya Yoga.", epics, 4);
-        addBook("Rashmirathi", "Ramdhari Singh Dinkar", "9788128800047", "Lokbharti Prakashan", "Classic Edition", 1952, "Hindi", "Epic Hindi poem celebrating the tragic life, honor, and valor of Karna.", epics, 4);
+        addBook("Gitanjali (Song Offerings)", "Rabindranath Tagore", "9788171672325", "Rupa Publications", "Nobel Edition", 1912, "Bengali", "Nobel Prize-winning collection of spiritual, devotional Bengali poems.", epics, 4);
+        addBook("Pather Panchali (Song of the Road)", "Bibhutibhushan Bandyopadhyay", "9780241982709", "Penguin Classics", "Illustrated Edition", 1929, "Bengali", "Beloved Bengali classic novel chronicling Apu's childhood in rural Bengal.", epics, 4);
         addBook("Yayati", "V.S. Khandekar", "9788171850433", "Popular Prakashan", "Jnanpith Edition", 1959, "Marathi", "Jnanpith Award-winning Marathi mythological novel on human desire.", epics, 3);
+        addBook("Pinjar (The Skeleton)", "Amrita Pritam", "9788172234058", "HarperCollins India", "Classic Edition", 1950, "Punjabi", "Poignant Punjabi novel on female endurance during Partition.", epics, 4);
 
         // Category 12: World Fiction & Global Classics
         addBook("The Alchemist", "Paulo Coelho", "9780062315007", "HarperOne", "25th Anniversary Edition", 1988, "Spanish", "Fable of Santiago's quest for treasure and listening to one's heart.", fiction, 5);

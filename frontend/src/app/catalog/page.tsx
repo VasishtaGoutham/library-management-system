@@ -369,13 +369,27 @@ function CatalogContent() {
               <p className="text-xs text-slate-400 mt-1">Can't find the book you are looking for in the library?</p>
             </div>
 
-            <a
-              href="/student/dashboard"
-              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-600/20"
-            >
-              <Lightbulb className="w-4 h-4 text-amber-300" />
-              <span>Request Book for Library Purchase</span>
-            </a>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => {
+                  setSelectedCategory(null);
+                  setSelectedLanguage(null);
+                  setSearch('');
+                }}
+                className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-white transition border border-slate-700 shadow-md"
+              >
+                <X className="w-4 h-4 text-rose-400" />
+                <span>Reset Filters & Show All Books</span>
+              </button>
+
+              <a
+                href="/student/dashboard"
+                className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-600/20"
+              >
+                <Lightbulb className="w-4 h-4 text-amber-300" />
+                <span>Request Book for Library Purchase</span>
+              </a>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
