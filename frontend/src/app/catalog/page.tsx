@@ -99,6 +99,17 @@ const getFallbackBookCover = (categoryName?: string, bookId?: number) => {
   return UNIQUE_BOOK_COVERS[index];
 };
 
+const getRealBookCover = (book: Book) => {
+  if (book.coverImageUrl && !book.coverImageUrl.includes('openlibrary.org')) {
+    return book.coverImageUrl;
+  }
+  const cleanIsbn = (book.isbn || '').replace(/[^0-9A-Za-z]/g, '');
+  if (cleanIsbn.length >= 10 && !cleanIsbn.startsWith('978938')) {
+    return `https://books.google.com/books/content?vid=ISBN${cleanIsbn}&printsec=frontcover&img=1&zoom=1`;
+  }
+  return getFallbackBookCover(book.categoryName, book.id);
+};
+
 function CatalogContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -326,7 +337,7 @@ function CatalogContent() {
                   {/* Book Cover Image */}
                   <div className="h-52 w-full relative bg-slate-950 overflow-hidden flex items-center justify-center group/cover">
                     <img
-                      src={book.coverImageUrl && !book.coverImageUrl.includes('openlibrary.org') ? book.coverImageUrl : getFallbackBookCover(book.categoryName, book.id)}
+                      src={getRealBookCover(book)}
                       alt={book.title}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = getFallbackBookCover(book.categoryName, book.id);

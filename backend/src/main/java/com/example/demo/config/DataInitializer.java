@@ -458,7 +458,9 @@ public class DataInitializer implements CommandLineRunner {
 
         // Cover Image URL using Open Library API or reliable CDN
         String cleanIsbn = isbn.replaceAll("[^0-9A-Za-z]", "");
-        String coverUrl = cleanIsbn.startsWith("978938") ? getCategoryCoverUrl(category.getName()) : "https://covers.openlibrary.org/b/isbn/" + cleanIsbn + "-M.jpg";
+        String coverUrl = cleanIsbn.startsWith("978938") 
+                ? getCategoryCoverUrl(title) 
+                : "https://books.google.com/books/content?vid=ISBN" + cleanIsbn + "&printsec=frontcover&img=1&zoom=1";
 
         Book book = bookRepository.save(Book.builder()
                 .title(title)
