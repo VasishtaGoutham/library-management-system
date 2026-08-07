@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar';
 import { useAuthStore } from '@/store/useAuthStore';
 import { 
   Search, BookOpen, Layers, QrCode, CheckCircle2, 
-  XCircle, Filter, X, ChevronRight, Copy, Check, Tag, 
+  XCircle, Filter, X, ChevronRight, ChevronLeft, Copy, Check, Tag, 
   Calendar, Globe, Bookmark, Star, MessageSquare, Send, Trash2, UserCheck, Lightbulb, SlidersHorizontal, Sparkles
 } from 'lucide-react';
 
@@ -264,11 +264,18 @@ function CatalogContent() {
   });
   const categories: Category[] = Array.isArray(rawCategories) ? rawCategories : [];
 
-  // Fetch Books
+  const [page, setPage] = useState<number>(0);
+  const PAGE_SIZE = 36;
+
+  useEffect(() => {
+    setPage(0);
+  }, [selectedCategory, search, selectedLanguage]);
+
+  // Fetch Books with High-Performance Pagination
   const { data: rawBooks, isLoading: isLoadingBooks } = useQuery({
-    queryKey: ['books', selectedCategory, search],
+    queryKey: ['books', selectedCategory, search, page],
     queryFn: async () => {
-      let url = '/books?size=20000';
+      let url = `/books?page=${page}&size=${PAGE_SIZE}`;
       if (selectedCategory) url += `&categoryId=${selectedCategory}`;
       if (search) url += `&query=${encodeURIComponent(search)}`;
 
@@ -279,6 +286,9 @@ function CatalogContent() {
   const books: Book[] = Array.isArray(rawBooks)
     ? rawBooks
     : (rawBooks?.content || []);
+
+  const totalPages = rawBooks?.totalPages || 1;
+  const totalElements = rawBooks?.totalElements || books.length;
 
   const LANGUAGES = ['All Languages', 'Sanskrit', 'Hindi', 'Tamil', 'Telugu', 'Kannada', 'Bengali', 'Marathi', 'Punjabi', 'French', 'German', 'Spanish', 'Russian', 'English'];
 
@@ -376,7 +386,7 @@ function CatalogContent() {
               <span>Library Catalog</span>
             </h1>
             <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-              Explore over {filteredBooks.length} books across {categories.length} categories with real-time physical barcode availability & student ratings.
+              Explore over {totalElements.toLocaleString()} books across {categories.length} categories with instant real-time search & barcode tracking.
             </p>
           </div>
 
@@ -678,6 +688,76 @@ function CatalogContent() {
 
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination Controls Bar */}
+        {!isLoadingBooks && totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t" style={{ borderColor: 'var(--card-border)' }}>
+            <div className="text-xs text-slate-400">
+              Page <strong className="text-white">{page + 1}</strong> of <strong className="text-white">{totalPages}</strong> (showing {filteredBooks.length} of {totalElements.toLocaleString()} books)
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => {
+                  setPage(p => Math.max(0, p - 1));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                disabled={page === 0}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold border transition flex items-center space-x-1.5 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-indigo-600 hover:text-white hover:border-indigo-500"
+                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Previous</span>
+              </button>
+
+              {/* Page Jump Selector Buttons */}
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum = page;
+                  if (totalPages <= 5) {
+                    pageNum = i;
+                  } else if (page < 3) {
+                    pageNum = i;
+                  } else if (page > totalPages - 3) {
+                    pageNum = totalPages - 5 + i;
+                  } else {
+                    pageNum = page - 2 + i;
+                  }
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => {
+                        setPage(pageNum);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className={`w-8 h-8 rounded-lg text-xs font-extrabold transition flex items-center justify-center ${
+                        page === pageNum
+                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                          : 'hover:bg-slate-800 text-slate-400'
+                      }`}
+                    >
+                      {pageNum + 1}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => {
+                  setPage(p => Math.min(totalPages - 1, p + 1));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                disabled={page >= totalPages - 1}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold border transition flex items-center space-x-1.5 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-indigo-600 hover:text-white hover:border-indigo-500"
+                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+              >
+                <span>Next</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         )}
 
