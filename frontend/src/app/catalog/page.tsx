@@ -149,11 +149,43 @@ const KNOWN_TITLE_COVERS: Record<string, string> = {
   'town planning': 'https://images-na.ssl-images-amazon.com/images/P/9380358687.01._SX350_SY475_SCLZZZZZZZ_.jpg',
 };
 
+const KEYWORD_COVERS: Array<{ keyword: string; url: string }> = [
+  { keyword: 'ramayana', url: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'mahabharata', url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'gita', url: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'panchatantra', url: 'https://images.unsplash.com/photo-1550399105-c4db5fb85c18?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'ponniyin', url: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'gitanjali', url: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'godan', url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'clean code', url: 'https://images-na.ssl-images-amazon.com/images/P/0132350882.01._SX350_SY475_SCLZZZZZZZ_.jpg' },
+  { keyword: 'algorithm', url: 'https://images-na.ssl-images-amazon.com/images/P/0262033844.01._SX350_SY475_SCLZZZZZZZ_.jpg' },
+  { keyword: 'design pattern', url: 'https://images-na.ssl-images-amazon.com/images/P/0201633612.01._SX350_SY475_SCLZZZZZZZ_.jpg' },
+  { keyword: 'artificial intelligence', url: 'https://images-na.ssl-images-amazon.com/images/P/0134610997.01._SX350_SY475_SCLZZZZZZZ_.jpg' },
+  { keyword: 'python', url: 'https://images-na.ssl-images-amazon.com/images/P/1593279280.01._SX350_SY475_SCLZZZZZZZ_.jpg' },
+  { keyword: 'robot', url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'constitution', url: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'law', url: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'space', url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'astronomy', url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'history', url: 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'environmental', url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'psychology', url: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'physics', url: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'chemistry', url: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'calculus', url: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'circuit', url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80' },
+  { keyword: 'mechanics', url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80' },
+];
+
 const getRealBookCover = (book: Book) => {
   if (book.title) {
     const titleKey = book.title.toLowerCase().trim();
     if (KNOWN_TITLE_COVERS[titleKey]) {
       return KNOWN_TITLE_COVERS[titleKey];
+    }
+    const kwMatch = KEYWORD_COVERS.find(k => titleKey.includes(k.keyword));
+    if (kwMatch) {
+      return kwMatch.url;
     }
   }
 
