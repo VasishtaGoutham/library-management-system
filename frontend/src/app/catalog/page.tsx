@@ -497,6 +497,12 @@ function CatalogContent() {
                     <img
                       src={getRealBookCover(book)}
                       alt={book.title}
+                      onLoad={(e) => {
+                        const img = e.target as HTMLImageElement;
+                        if (img.naturalWidth <= 1 || img.naturalHeight <= 1) {
+                          img.src = getFallbackBookCover(book.categoryName, book.id);
+                        }
+                      }}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = getFallbackBookCover(book.categoryName, book.id);
                       }}
