@@ -1,5 +1,7 @@
 # 📚 LibraryVerse – Enterprise Full-Stack Digital Library System
 
+![Status](https://img.shields.io/badge/Status-Production_Ready-emerald?style=for-the-badge) ![Build](https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge) ![Books](https://img.shields.io/badge/Books-10%2C300%2B_Live-indigo?style=for-the-badge)
+
 LibraryVerse is a modern, high-performance digital library management system built with **Spring Boot 3** and **Next.js 16**. It manages over **10,300+ real published titles** across 18 academic disciplines with real-time catalog search, physical barcode tracking, course reserves, student reviews, and study space reservations.
 
 ---
