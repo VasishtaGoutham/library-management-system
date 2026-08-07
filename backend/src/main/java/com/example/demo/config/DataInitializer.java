@@ -453,14 +453,31 @@ public class DataInitializer implements CommandLineRunner {
         return UNIQUE_BOOK_COVERS[idx];
     }
 
+    private String toAmazonIsbn10Url(String isbn13) {
+        String clean = isbn13.replaceAll("[^0-9X]", "");
+        if (clean.length() == 10) {
+            return "https://images-na.ssl-images-amazon.com/images/P/" + clean + ".01._SX350_SY475_SCLZZZZZZZ_.jpg";
+        }
+        if (clean.length() == 13 && clean.startsWith("978")) {
+            String nine = clean.substring(3, 12);
+            int sum = 0;
+            for (int i = 0; i < 9; i++) {
+                sum += (nine.charAt(i) - '0') * (10 - i);
+            }
+            int rem = (11 - (sum % 11)) % 11;
+            char check = rem == 10 ? 'X' : (char)('0' + rem);
+            return "https://images-na.ssl-images-amazon.com/images/P/" + nine + check + ".01._SX350_SY475_SCLZZZZZZZ_.jpg";
+        }
+        return null;
+    }
+
     private void addBook(String title, String author, String isbn, String publisher, String edition, Integer year, String language, String desc, Category category, int copies) {
         if (bookRepository.existsByIsbnAndIsDeletedFalse(isbn)) return;
 
-        // Cover Image URL using Open Library API or reliable CDN
+        // Cover Image URL using Amazon SSL Cover CDN or reliable pool
         String cleanIsbn = isbn.replaceAll("[^0-9A-Za-z]", "");
-        String coverUrl = cleanIsbn.startsWith("978938") 
-                ? getCategoryCoverUrl(title) 
-                : "https://books.google.com/books/content?vid=ISBN" + cleanIsbn + "&printsec=frontcover&img=1&zoom=1";
+        String amazonUrl = toAmazonIsbn10Url(cleanIsbn);
+        String coverUrl = (amazonUrl != null && !cleanIsbn.startsWith("978938")) ? amazonUrl : getCategoryCoverUrl(title);
 
         Book book = bookRepository.save(Book.builder()
                 .title(title)

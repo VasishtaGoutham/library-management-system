@@ -99,13 +99,33 @@ const getFallbackBookCover = (categoryName?: string, bookId?: number) => {
   return UNIQUE_BOOK_COVERS[index];
 };
 
+const getAmazonIsbn10Cover = (isbn13: string) => {
+  const clean = isbn13.replace(/[^0-9X]/gi, '');
+  if (clean.length === 10) {
+    return `https://images-na.ssl-images-amazon.com/images/P/${clean}.01._SX350_SY475_SCLZZZZZZZ_.jpg`;
+  }
+  if (clean.length === 13 && clean.startsWith('978')) {
+    const nine = clean.substring(3, 12);
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(nine[i], 10) * (10 - i);
+    }
+    const rem = (11 - (sum % 11)) % 11;
+    const check = rem === 10 ? 'X' : rem.toString();
+    const isbn10 = nine + check;
+    return `https://images-na.ssl-images-amazon.com/images/P/${isbn10}.01._SX350_SY475_SCLZZZZZZZ_.jpg`;
+  }
+  return null;
+};
+
 const getRealBookCover = (book: Book) => {
-  if (book.coverImageUrl && !book.coverImageUrl.includes('openlibrary.org')) {
+  if (book.coverImageUrl && !book.coverImageUrl.includes('openlibrary.org') && !book.coverImageUrl.includes('books.google.com')) {
     return book.coverImageUrl;
   }
   const cleanIsbn = (book.isbn || '').replace(/[^0-9A-Za-z]/g, '');
   if (cleanIsbn.length >= 10 && !cleanIsbn.startsWith('978938')) {
-    return `https://books.google.com/books/content?vid=ISBN${cleanIsbn}&printsec=frontcover&img=1&zoom=1`;
+    const amazonUrl = getAmazonIsbn10Cover(cleanIsbn);
+    if (amazonUrl) return amazonUrl;
   }
   return getFallbackBookCover(book.categoryName, book.id);
 };
