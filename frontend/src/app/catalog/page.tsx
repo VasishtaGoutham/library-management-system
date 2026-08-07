@@ -147,6 +147,7 @@ function CatalogContent() {
   }, [searchParams]);
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [barcodeModalBook, setBarcodeModalBook] = useState<Book | null>(null);
   const [copiedBarcode, setCopiedBarcode] = useState<string | null>(null);
@@ -182,6 +183,13 @@ function CatalogContent() {
   const books: Book[] = Array.isArray(rawBooks)
     ? rawBooks
     : (rawBooks?.content || []);
+
+  const LANGUAGES = ['All Languages', 'Sanskrit', 'Hindi', 'Tamil', 'Telugu', 'Kannada', 'Bengali', 'Marathi', 'Punjabi', 'French', 'German', 'Spanish', 'Russian', 'English'];
+
+  const filteredBooks = books.filter((b) => {
+    if (!selectedLanguage || selectedLanguage === 'All Languages') return true;
+    return b.language?.toLowerCase() === selectedLanguage.toLowerCase();
+  });
 
   // Fetch Physical Book Copies
   const { data: bookCopies = [], isLoading: isLoadingCopies } = useQuery({
@@ -272,7 +280,7 @@ function CatalogContent() {
               <span>Library Catalog</span>
             </h1>
             <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-              Explore over {books.length} books across 10 categories with real-time physical barcode availability & student ratings.
+              Explore over {filteredBooks.length} books across {categories.length} categories with real-time physical barcode availability & student ratings.
             </p>
           </div>
 
@@ -296,30 +304,54 @@ function CatalogContent() {
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none text-xs">
-          <button
-            onClick={() => setSelectedCategory(null)}
-            className={`px-4 py-2 rounded-xl font-bold transition flex items-center space-x-1.5 shrink-0 ${
-              selectedCategory === null ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
-            }`}
-            style={selectedCategory !== null ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-main)', border: '1px solid var(--card-border)' } : {}}
-          >
-            <Filter className="w-3.5 h-3.5" />
-            <span>All Categories</span>
-          </button>
-
-          {categories.map((cat) => (
+        <div className="space-y-3">
+          {/* Category Filter Bar */}
+          <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none text-xs">
             <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-xl font-medium transition shrink-0 ${
-                selectedCategory === cat.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
+              onClick={() => setSelectedCategory(null)}
+              className={`px-4 py-2 rounded-xl font-bold transition flex items-center space-x-1.5 shrink-0 ${
+                selectedCategory === null ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
               }`}
-              style={selectedCategory !== cat.id ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-muted)', border: '1px solid var(--card-border)' } : {}}
+              style={selectedCategory !== null ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-main)', border: '1px solid var(--card-border)' } : {}}
             >
-              {cat.name}
+              <Filter className="w-3.5 h-3.5" />
+              <span>All Categories</span>
             </button>
-          ))}
+
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-4 py-2 rounded-xl font-medium transition shrink-0 ${
+                  selectedCategory === cat.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
+                }`}
+                style={selectedCategory !== cat.id ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-muted)', border: '1px solid var(--card-border)' } : {}}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Language Filter Bar */}
+          <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+            <span className="font-bold text-slate-400 shrink-0 px-1 flex items-center gap-1">
+              <Globe className="w-3.5 h-3.5 text-indigo-400" />
+              Language:
+            </span>
+            {LANGUAGES.map((lang) => (
+              <button
+                key={lang}
+                onClick={() => setSelectedLanguage(lang === 'All Languages' ? null : lang)}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition shrink-0 ${
+                  (selectedLanguage === null && lang === 'All Languages') || selectedLanguage === lang
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                    : 'hover:opacity-80 text-slate-400 border border-slate-700/50'
+                }`}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Books Grid */}
@@ -329,7 +361,7 @@ function CatalogContent() {
               <div key={i} className="h-80 rounded-2xl border animate-pulse" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}></div>
             ))}
           </div>
-        ) : books.length === 0 ? (
+        ) : filteredBooks.length === 0 ? (
           <div className="py-16 text-center space-y-4 border rounded-2xl" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <BookOpen className="w-12 h-12 mx-auto text-indigo-400 opacity-80" />
             <div>
@@ -347,7 +379,7 @@ function CatalogContent() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {books.map((book) => (
+            {filteredBooks.map((book) => (
               <div
                 key={book.id}
                 className="border rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between group"

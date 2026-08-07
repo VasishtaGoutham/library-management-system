@@ -72,8 +72,10 @@ public class DataInitializer implements CommandLineRunner {
         Category med = getOrCreateCategory("Medical & Life Sciences", "Anatomy, physiology, biochemistry, pathology, and genetics.");
         Category civil = getOrCreateCategory("Civil & Architecture", "Structural design, surveying, geotechnical, and urban planning.");
         Category hum = getOrCreateCategory("Literature & Humanities", "Classics, history, philosophy, and critical thinking.");
+        Category epics = getOrCreateCategory("Indian Epics, Mythology & Classics", "Sacred Indian epics, Ramayana, Mahabharata, Bhagavad Gita, Panchatantra, and regional masterpieces.");
+        Category fiction = getOrCreateCategory("World Fiction & Global Classics", "Global literary masterpieces, modern bestsellers, philosophy, and timeless world classics.");
 
-        System.out.println(">>> Categories initialized. Seeding 200 books...");
+        System.out.println(">>> Categories initialized. Seeding books...");
 
         // Category 1: Computer Science & IT (20 books)
         addBook("Clean Code: Refactoring & Testing", "Robert C. Martin", "9780132350884", "Prentice Hall", "1st Edition", 2008, "English", "A Handbook of Agile Software Craftsmanship.", cs, 3);
@@ -295,7 +297,34 @@ public class DataInitializer implements CommandLineRunner {
         addBook("Meditations", "Marcus Aurelius", "9780812968255", "Modern Library", "Gregory Hays Translation", 2002, "English", "Stoic philosophy and personal reflections of the Roman Emperor.", hum, 5);
         addBook("The Prince", "Niccolo Machiavelli", "9780140449150", "Penguin Classics", "Translated Edition", 2003, "English", "Classic treatise on political power, statecraft, and pragmatism.", hum, 3);
 
-        System.out.println(">>> SUCCESSFULLY SEEDED 200 COLLEGE LIBRARY BOOKS!");
+        // Category 11: Indian Epics, Mythology & Classics
+        addBook("The Ramayana of Valmiki", "Sage Valmiki", "9780143064320", "Penguin Classics", "Critical Edition", 2008, "Sanskrit", "The timeless ancient Indian epic detailing the life, virtue, and journey of Lord Rama.", epics, 5);
+        addBook("The Mahabharata", "Sage Vyasa", "9780143100133", "Penguin Classics", "Unabridged Edition", 2010, "Sanskrit", "The grand epic of Kurukshetra, duty, dharma, and royal dynasty.", epics, 5);
+        addBook("The Bhagavad Gita", "Sage Vyasa / Eknath Easwaran", "9781586380199", "Nilgiri Press", "2nd Edition", 2007, "Sanskrit", "The sacred 700-verse dialogue on karma, yoga, dharma, and self-realization.", epics, 6);
+        addBook("Panchatantra: Ancient Fables of India", "Vishnu Sharma", "9788172230807", "HarperCollins", "Classic Edition", 1993, "Sanskrit", "Interwoven animal fables teaching political wisdom, strategy, and human behavior.", epics, 4);
+        addBook("Ponniyin Selvan (The Son of Ponni)", "Kalki Krishnamurthy", "9789353335502", "Pustaka Digital", "Illustrated Edition", 1954, "Tamil", "The legendary historical fiction epic of the Chola Dynasty.", epics, 5);
+        addBook("Shiva Trilogy: The Immortals of Meluha", "Amish Tripathi", "9789380658742", "Westland", "1st Edition", 2010, "Hindi", "Mythological reimagining of Shiva as a Tibetan warrior in the Indus valley.", epics, 5);
+        addBook("Chanakya Neeti: Ancient Indian Strategy", "Chanakya (Kautilya)", "9788128822506", "Diamond Books", "Revised Edition", 2011, "Sanskrit", "Aphorisms on statecraft, governance, ethics, and personal leadership.", epics, 4);
+        addBook("Godan (The Gift of a Cow)", "Munshi Premchand", "9788121600811", "Rajkamal Prakashan", "Classic Edition", 1936, "Hindi", "The masterpiece Hindi realistic novel depicting rural Indian peasantry.", epics, 4);
+        addBook("Gitanjali (Song Offerings)", "Rabindranath Tagore", "9788171672325", "Rupa Publications", "Nobel Edition", 1912, "Bengali", "Nobel Prize-winning collection of spiritual, devotional Bengali poems.", epics, 4);
+        addBook("Madhushala (House of Wine)", "Harivansh Rai Bachchan", "9788121612715", "Rajpal & Sons", "Anniversary Edition", 1935, "Hindi", "Famous neo-romantic 136-quatrain Hindi poem on life's metaphors.", epics, 4);
+        addBook("Malgudi Days", "R.K. Narayan", "9780140055016", "Penguin Books", "Reprint Edition", 1982, "English", "Enchanting short stories set in the fictional South Indian town of Malgudi.", epics, 4);
+        addBook("Train to Pakistan", "Khushwant Singh", "9780143065884", "Penguin India", "Anniversary Edition", 1956, "Punjabi", "Harrowing novel set during the Partition of India in 1947.", epics, 3);
+        addBook("Autobiography of a Yogi", "Paramahansa Yogananda", "9788189535513", "Yogoda Satsanga Society", "Original Edition", 1946, "Bengali", "Spiritual classic recounting meetings with saints, yogis, and Kriya Yoga.", epics, 4);
+        addBook("Rashmirathi", "Ramdhari Singh Dinkar", "9788128800047", "Lokbharti Prakashan", "Classic Edition", 1952, "Hindi", "Epic Hindi poem celebrating the tragic life, honor, and valor of Karna.", epics, 4);
+        addBook("Yayati", "V.S. Khandekar", "9788171850433", "Popular Prakashan", "Jnanpith Edition", 1959, "Marathi", "Jnanpith Award-winning Marathi mythological novel on human desire.", epics, 3);
+
+        // Category 12: World Fiction & Global Classics
+        addBook("The Alchemist", "Paulo Coelho", "9780062315007", "HarperOne", "25th Anniversary Edition", 1988, "Spanish", "Fable of Santiago's quest for treasure and listening to one's heart.", fiction, 5);
+        addBook("The Little Prince (Le Petit Prince)", "Antoine de Saint-Exupery", "9780156012195", "Mariner Books", "Translation Edition", 1943, "French", "Philosophical tale of love, loneliness, friendship, and human nature.", fiction, 4);
+        addBook("War and Peace", "Leo Tolstoy", "9780140447934", "Penguin Classics", "Pevear & Volokhonsky Translation", 1869, "Russian", "Monumental epic of Russian aristocratic families during the Napoleonic wars.", fiction, 3);
+        addBook("Don Quixote", "Miguel de Cervantes", "9780060934347", "Harper Perennial", "Grossman Translation", 1605, "Spanish", "The founding novel of Western literature following the idealistic knight.", fiction, 3);
+        addBook("Les Miserables", "Victor Hugo", "9780451419439", "Signet Classic", "Unabridged Edition", 1862, "French", "Epic French story of Jean Valjean, redemption, justice, and revolution.", fiction, 3);
+        addBook("Metamorphosis (Die Verwandlung)", "Franz Kafka", "9780553213690", "Bantam Classics", "Translation Edition", 1915, "German", "Surreal novella of Gregor Samsa transforming into a giant insect.", fiction, 4);
+        addBook("Faust", "Johann Wolfgang von Goethe", "9780140449013", "Penguin Classics", "Greenfield Translation", 1808, "German", "Tragic play of Faust's pact with the demon Mephistopheles for knowledge.", fiction, 3);
+        addBook("The Count of Monte Cristo", "Alexandre Dumas", "9780140449266", "Penguin Classics", "Buss Translation", 1844, "French", "Ultimate tale of wrongful imprisonment, escape, and calculated vengeance.", fiction, 4);
+
+        System.out.println(">>> SUCCESSFULLY SEEDED ALL EPICS, WORLD FICTION & COLLEGE BOOKS!");
 
         seedCourseReserves();
     }
