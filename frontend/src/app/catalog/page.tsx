@@ -541,6 +541,16 @@ function CatalogContent() {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover/cover:scale-110"
                     />
 
+                    {/* Glassmorphic Book Title & Author Overlay directly on Cover Image */}
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/95 via-slate-950/75 to-transparent p-3 pt-7 pointer-events-none group-hover/cover:opacity-0 transition-opacity duration-200">
+                      <p className="text-xs font-black text-white line-clamp-1 drop-shadow-md tracking-tight">
+                        {book.title}
+                      </p>
+                      <p className="text-[10px] font-medium text-slate-300 line-clamp-1 drop-shadow-sm mt-0.5">
+                        by {book.author}
+                      </p>
+                    </div>
+
                     {/* Interactive Quick Action Hover Overlay */}
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/cover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-2.5 p-4">
                       <button
