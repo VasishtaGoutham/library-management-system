@@ -13,7 +13,7 @@ public class RootController {
     public ResponseEntity<Map<String, Object>> getRootStatus() {
         return ResponseEntity.ok(Map.of(
             "status", "UP",
-            "message", "Library Universe Backend API Service is active!",
+            "message", "LibraryVerse Backend API Service is active!",
             "version", "1.0.0"
         ));
     }

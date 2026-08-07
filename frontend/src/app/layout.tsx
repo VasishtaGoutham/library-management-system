@@ -4,8 +4,8 @@ import QueryProvider from '@/providers/QueryProvider';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Library Universe - Modern Library Management System',
-  description: 'Smart library management system for modern minds.',
+  title: 'LibraryVerse - Modern Library Management System',
+  description: 'Manage, search, reserve, and borrow physical & digital books seamlessly.',
 };
 
 export default function RootLayout({

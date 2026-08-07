@@ -28,7 +28,7 @@ export default function Footer() {
                 <BookOpen className="w-5 h-5" />
               </div>
               <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--text-main)' }}>
-                Library<span style={{ color: 'var(--accent-color)' }}>Universe</span>
+                Library<span style={{ color: 'var(--accent-color)' }}>Verse</span>
               </span>
             </Link>
 
@@ -61,7 +61,7 @@ export default function Footer() {
               </li>
               <li>
                 <a href="/#about" className="hover:underline transition" style={{ color: 'var(--text-muted)' }}>
-                  About LibraryUniverse
+                  About LibraryVerse
                 </a>
               </li>
               <li>
@@ -100,7 +100,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 shrink-0 text-purple-400" />
-                <span>support@libraryuniverse.edu</span>
+                <span>librarian@libraryverse.edu</span>
               </div>
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs gap-4" style={{ color: 'var(--text-muted)' }}>
-          <p>© {new Date().getFullYear()} LibraryUniverse System. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} LibraryVerse System. All rights reserved.</p>
           <div className="flex items-center space-x-4 text-[11px]">
             <a href="#" className="hover:underline">Privacy Policy</a>
             <span>•</span>

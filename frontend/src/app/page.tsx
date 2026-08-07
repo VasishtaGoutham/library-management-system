@@ -24,7 +24,7 @@ export default function Home() {
           <div className="lg:col-span-6 space-y-6 text-left animate-slide-from-left">
             <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full border text-xs font-semibold hover:scale-105 transition cursor-default" style={{ backgroundColor: 'var(--accent-light)', borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}>
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Welcome to LibraryUniverse</span>
+              <span>Welcome to LibraryVerse</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight transition-transform duration-300 hover:scale-[1.03] origin-left cursor-pointer" style={{ color: 'var(--text-main)' }}>
@@ -133,10 +133,10 @@ export default function Home() {
       <section id="about" className="border-t py-16 transition-colors duration-300 relative z-10" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         <div className="max-w-7xl w-full mx-auto px-6 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--accent-color)' }}>About LibraryUniverse</span>
-            <h2 className="text-2xl md:text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Empowering Knowledge & Discovery</h2>
-            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-              LibraryUniverse is a state-of-the-art digital and physical library management system built to provide students, faculty, and librarians with real-time barcode tracking, seamless catalog exploration, and automated circulation controls.
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--accent-color)' }}>About LibraryVerse</span>
+            <h2 className="text-2xl md:text-3xl font-bold" style={{ color: 'var(--text-main)' }}>Modern Circulation & Digital Asset Control</h2>
+            <p className="text-xs max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+              LibraryVerse is a state-of-the-art digital and physical library management system built to provide students, faculty, and librarians with real-time barcode tracking, seamless catalog exploration, and automated circulation controls.
             </p>
           </div>
 
@@ -313,7 +313,7 @@ export default function Home() {
                     </div>
                     <div>
                       <span className="font-bold block" style={{ color: 'var(--text-main)' }}>Official Library Email</span>
-                      <span className="text-[11px] font-mono text-purple-400">librarian@libraryuniverse.edu</span>
+                      <span className="text-[11px] font-mono text-purple-400">librarian@libraryverse.edu</span>
                     </div>
                   </div>
                 </div>
@@ -341,9 +341,9 @@ export default function Home() {
         <div className="max-w-7xl w-full mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2 font-bold" style={{ color: 'var(--text-main)' }}>
             <BookOpen className="w-4 h-4" style={{ color: 'var(--accent-color)' }} />
-            <span>LibraryUniverse v1.0.0</span>
+            <span>LibraryVerse v1.0.0</span>
           </div>
-          <p>© 2026 LibraryUniverse. All rights reserved.</p>
+          <p>© 2026 LibraryVerse. All rights reserved.</p>
         </div>
       </footer>
     </div>

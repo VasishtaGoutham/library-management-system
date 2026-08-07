@@ -86,7 +86,7 @@ export default function Navbar() {
             <BookOpen className="w-5 h-5" />
           </div>
           <span className="font-bold text-lg tracking-tight transition group-hover:opacity-90" style={{ color: 'var(--text-main)' }}>
-            Library<span style={{ color: 'var(--accent-color)' }}>Universe</span>
+            Library<span style={{ color: 'var(--accent-color)' }}>Verse</span>
           </span>
         </Link>
 

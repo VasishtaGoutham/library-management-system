@@ -37,7 +37,7 @@ public class EmailService {
         String subject = "📚 Book Check-Out Confirmation: " + bookTitle;
         String htmlContent = String.format(
             "<div style='font-family: Arial, sans-serif; padding: 20px; background-color: #0f172a; color: #f8fafc; border-radius: 12px;'>" +
-            "<h2 style='color: #6366f1;'>📚 Library Universe — Check-Out Receipt</h2>" +
+            "<h2 style='color: #6366f1;'>📚 LibraryVerse — Check-Out Receipt</h2>" +
             "<p>Hello <b>%s</b>,</p>" +
             "<p>You have successfully checked out <b>%s</b> (Barcode: <code>%s</code>).</p>" +
             "<p style='background-color: #1e293b; padding: 12px; border-left: 4px solid #10b981; border-radius: 6px;'>" +
@@ -63,7 +63,7 @@ public class EmailService {
         String fineInfo = fine > 0 ? String.format("Assessed Overdue Fine: <b style='color: #f43f5e;'>$%.2f</b>", fine) : "<b style='color: #34d399;'>$0.00 (No Fines)</b>";
         String htmlContent = String.format(
             "<div style='font-family: Arial, sans-serif; padding: 20px; background-color: #0f172a; color: #f8fafc; border-radius: 12px;'>" +
-            "<h2 style='color: #10b981;'>✅ Library Universe — Return Receipt</h2>" +
+            "<h2 style='color: #10b981;'>✅ LibraryVerse — Return Receipt</h2>" +
             "<p>Hello <b>%s</b>,</p>" +
             "<p>Thank you for returning <b>%s</b> (Barcode: <code>%s</code>).</p>" +
             "<p style='background-color: #1e293b; padding: 12px; border-left: 4px solid #6366f1; border-radius: 6px;'>" +
@@ -156,7 +156,7 @@ public class EmailService {
 
         try {
             String jsonPayload = String.format(
-                "{\"from\":\"Library Universe <onboarding@resend.dev>\",\"to\":[\"%s\"],\"subject\":\"%s\",\"html\":\"%s\"}",
+                "{\"from\":\"LibraryVerse <onboarding@resend.dev>\",\"to\":[\"%s\"],\"subject\":\"%s\",\"html\":\"%s\"}",
                 targetRecipient, escapeJson(subject), escapeJson(htmlBody)
             );
 
