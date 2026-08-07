@@ -453,7 +453,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private void purgeSyntheticBooks() {
         List<Book> synthetic = bookRepository.findAll().stream()
-                .filter(b -> b.getIsbn() != null && b.getIsbn().startsWith("978938"))
+                .filter(b -> (b.getAuthor() != null && b.getAuthor().contains("& Co.")) || (b.getTitle() != null && b.getTitle().contains("(Vol. ")))
                 .collect(Collectors.toList());
         if (!synthetic.isEmpty()) {
             System.out.println(">>> PURGING " + synthetic.size() + " SYNTHETIC BOOKS FROM DATABASE...");

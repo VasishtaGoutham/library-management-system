@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { 
   Search, BookOpen, Layers, QrCode, CheckCircle2, 
   XCircle, Filter, X, ChevronRight, Copy, Check, Tag, 
-  Calendar, Globe, Bookmark, Star, MessageSquare, Send, Trash2, UserCheck, Lightbulb
+  Calendar, Globe, Bookmark, Star, MessageSquare, Send, Trash2, UserCheck, Lightbulb, SlidersHorizontal
 } from 'lucide-react';
 
 interface Book {
@@ -145,6 +145,8 @@ const KNOWN_TITLE_COVERS: Record<string, string> = {
   'the alchemist': 'https://images-na.ssl-images-amazon.com/images/P/0062315005.01._SX350_SY475_SCLZZZZZZZ_.jpg',
   'sapiens: a brief history of humankind': 'https://images-na.ssl-images-amazon.com/images/P/0062316095.01._SX350_SY475_SCLZZZZZZZ_.jpg',
   'atomic habits': 'https://images-na.ssl-images-amazon.com/images/P/0735211299.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'building materials': 'https://images-na.ssl-images-amazon.com/images/P/9386070405.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'town planning': 'https://images-na.ssl-images-amazon.com/images/P/9380358687.01._SX350_SY475_SCLZZZZZZZ_.jpg',
 };
 
 const getRealBookCover = (book: Book) => {
@@ -160,7 +162,7 @@ const getRealBookCover = (book: Book) => {
   }
 
   const cleanIsbn = (book.isbn || '').replace(/[^0-9A-Za-z]/g, '');
-  if (cleanIsbn.length >= 10 && !cleanIsbn.startsWith('978938') && !cleanIsbn.startsWith('97881')) {
+  if (cleanIsbn.length >= 10) {
     const amazonUrl = getAmazonIsbn10Cover(cleanIsbn);
     if (amazonUrl) return amazonUrl;
   }
@@ -186,6 +188,7 @@ function CatalogContent() {
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [barcodeModalBook, setBarcodeModalBook] = useState<Book | null>(null);
   const [copiedBarcode, setCopiedBarcode] = useState<string | null>(null);
@@ -322,75 +325,126 @@ function CatalogContent() {
             </p>
           </div>
 
-          {/* Search Box */}
-          <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search by title, author, or ISBN..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs focus:outline-none shadow-sm transition"
-              style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
-            />
-            {search && (
-              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Filter Pills */}
-        <div className="space-y-3">
-          {/* Category Filter Bar */}
-          <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none text-xs">
+          {/* Search Box & Filter Toggle */}
+          <div className="flex items-center gap-3 w-full md:w-auto">
             <button
-              onClick={() => setSelectedCategory(null)}
-              className={`px-4 py-2 rounded-xl font-bold transition flex items-center space-x-1.5 shrink-0 ${
-                selectedCategory === null ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition flex items-center gap-2 shrink-0 ${
+                isFilterOpen || selectedCategory !== null || selectedLanguage !== null
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/30'
+                  : 'hover:opacity-80'
               }`}
-              style={selectedCategory !== null ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-main)', border: '1px solid var(--card-border)' } : {}}
+              style={
+                !isFilterOpen && selectedCategory === null && selectedLanguage === null
+                  ? { backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }
+                  : {}
+              }
             >
-              <Filter className="w-3.5 h-3.5" />
-              <span>All Categories</span>
+              <SlidersHorizontal className="w-4 h-4 text-indigo-200" />
+              <span>Filters</span>
+              {(selectedCategory !== null || selectedLanguage !== null) && (
+                <span className="w-5 h-5 rounded-full bg-white text-indigo-600 text-[10px] font-black flex items-center justify-center">
+                  {(selectedCategory !== null ? 1 : 0) + (selectedLanguage !== null ? 1 : 0)}
+                </span>
+              )}
             </button>
 
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
-                className={`px-4 py-2 rounded-xl font-medium transition shrink-0 ${
-                  selectedCategory === cat.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
-                }`}
-                style={selectedCategory !== cat.id ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-muted)', border: '1px solid var(--card-border)' } : {}}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-
-          {/* Language Filter Bar */}
-          <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none text-xs">
-            <span className="font-bold text-slate-400 shrink-0 px-1 flex items-center gap-1">
-              <Globe className="w-3.5 h-3.5 text-indigo-400" />
-              Language:
-            </span>
-            {LANGUAGES.map((lang) => (
-              <button
-                key={lang}
-                onClick={() => setSelectedLanguage((lang === 'All Languages' || selectedLanguage === lang) ? null : lang)}
-                className={`px-3 py-1.5 rounded-lg font-semibold transition shrink-0 ${
-                  (selectedLanguage === null && lang === 'All Languages') || selectedLanguage === lang
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                    : 'hover:opacity-80 text-slate-400 border border-slate-700/50'
-                }`}
-              >
-                {lang}
-              </button>
-            ))}
+            <div className="relative flex-1 md:w-80">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search by title, author, or ISBN..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs focus:outline-none shadow-sm transition"
+                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--text-main)' }}
+              />
+              {search && (
+                <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Collapsible Filter Panel (Shows ONLY when Filter Button clicked or filters active) */}
+        {isFilterOpen && (
+          <div className="p-4 rounded-2xl border space-y-4 shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-top-2" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--card-border)' }}>
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-indigo-400">
+                <Filter className="w-4 h-4" />
+                <span>Filter Library Collection</span>
+              </div>
+
+              {(selectedCategory !== null || selectedLanguage !== null) && (
+                <button
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setSelectedLanguage(null);
+                  }}
+                  className="text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Reset All Filters</span>
+                </button>
+              )}
+            </div>
+
+            {/* Category Filter Bar */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Category:</span>
+              <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none text-xs">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className={`px-4 py-2 rounded-xl font-bold transition flex items-center space-x-1.5 shrink-0 ${
+                    selectedCategory === null ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
+                  }`}
+                  style={selectedCategory !== null ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-main)', border: '1px solid var(--card-border)' } : {}}
+                >
+                  <Filter className="w-3.5 h-3.5" />
+                  <span>All Categories</span>
+                </button>
+
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
+                    className={`px-4 py-2 rounded-xl font-medium transition shrink-0 ${
+                      selectedCategory === cat.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
+                    }`}
+                    style={selectedCategory !== cat.id ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-muted)', border: '1px solid var(--card-border)' } : {}}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Language Filter Bar */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                <Globe className="w-3.5 h-3.5 text-indigo-400" />
+                Language:
+              </span>
+              <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+                {LANGUAGES.map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setSelectedLanguage((lang === 'All Languages' || selectedLanguage === lang) ? null : lang)}
+                    className={`px-3 py-1.5 rounded-lg font-semibold transition shrink-0 ${
+                      (selectedLanguage === null && lang === 'All Languages') || selectedLanguage === lang
+                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                        : 'hover:opacity-80 text-slate-400 border border-slate-700/50'
+                    }`}
+                  >
+                    {lang}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Books Grid */}
         {isLoadingBooks ? (
