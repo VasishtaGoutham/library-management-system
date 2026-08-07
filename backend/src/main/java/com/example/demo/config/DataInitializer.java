@@ -340,7 +340,47 @@ public class DataInitializer implements CommandLineRunner {
         addBook("Faust", "Johann Wolfgang von Goethe", "9780140449013", "Penguin Classics", "Greenfield Translation", 1808, "German", "Tragic play of Faust's pact with the demon Mephistopheles for knowledge.", fiction, 3);
         addBook("The Count of Monte Cristo", "Alexandre Dumas", "9780140449266", "Penguin Classics", "Buss Translation", 1844, "French", "Ultimate tale of wrongful imprisonment, escape, and calculated vengeance.", fiction, 4);
 
-        System.out.println(">>> SUCCESSFULLY SEEDED ALL EPICS, WORLD FICTION & COLLEGE BOOKS!");
+        // Category 13: Law & Constitutional Jurisprudence
+        Category law = getOrCreateCategory("Law & Constitutional Jurisprudence", "Constitutional law, legal theory, jurisprudence, torts, and international treaties.");
+        addBook("Introduction to the Constitution of India", "D.D. Basu", "9789351435273", "LexisNexis", "26th Edition", 2022, "English", "The standard treatise on Indian constitutional framework, fundamental rights, and governance.", law, 4);
+        addBook("Indian Penal Code", "K.D. Gaur", "9789351433606", "Universal Law Publishing", "6th Edition", 2016, "English", "Comprehensive legal commentary on criminal jurisprudence and offenses in India.", law, 4);
+        addBook("The Law of Torts", "Ratanlal & Dhirajlal", "9789351435648", "LexisNexis", "28th Edition", 2019, "English", "Landmark textbook on civil wrongs, negligence, liability, and defamation.", law, 3);
+        addBook("Constitutional Law of India", "H.M. Seervai", "9788180387531", "Universal Law Publishing", "4th Edition", 2015, "English", "Monumental commentary on constitutional interpretation and judicial precedent.", law, 3);
+        addBook("Jurisprudence and Legal Theory", "V.D. Mahajan", "9788192300000", "Eastern Book Company", "5th Edition", 2016, "English", "Analytical, natural, historical, and sociological schools of legal thought.", law, 3);
+        addBook("International Law and Human Rights", "S.K. Kapoor", "9788172410001", "Central Law Agency", "21st Edition", 2020, "English", "Public international law, United Nations charter, and global treaties.", law, 3);
+        addBook("The Concept of Law", "H.L.A. Hart", "9780199644704", "Oxford University Press", "3rd Edition", 2012, "English", "Classic philosophy of law, primary and secondary rules, and legal positivism.", law, 4);
+        addBook("Getting to Yes: Negotiating Agreement Without Giving In", "Roger Fisher, William Ury", "9780140157352", "Penguin Books", "2nd Edition", 1991, "English", "Principled negotiation strategy and conflict resolution for legal professionals.", law, 5);
+
+        // Category 14: Robotics, Automation & AI
+        Category robotics = getOrCreateCategory("Robotics, Automation & AI", "Kinematics, ROS, autonomous mobile robots, computer vision, and reinforcement learning.");
+        addBook("Introduction to Robotics: Mechanics and Control", "John J. Craig", "9780201543612", "Pearson", "3rd Edition", 2004, "English", "Forward and inverse kinematics, Jacobians, dynamics, and trajectory generation.", robotics, 4);
+        addBook("Probabilistic Robotics", "Sebastian Thrun, Wolfram Burgard, Dieter Fox", "9780262201629", "MIT Press", "1st Edition", 2005, "English", "Kalman filters, particle filters, SLAM, and probabilistic state estimation.", robotics, 4);
+        addBook("Robotics, Vision and Control", "Peter Corke", "9783319544120", "Springer", "2nd Edition", 2017, "English", "Fundamental algorithms in MATLAB and Python for arm manipulators and vision.", robotics, 3);
+        addBook("Robot Modeling and Control", "Mark W. Spong, Seth Hutchinson", "9780471649908", "Wiley", "1st Edition", 2005, "English", "Rigid body transformations, Euler angles, Lagrangian dynamics, and control.", robotics, 3);
+        addBook("Autonomous Mobile Robots", "Roland Siegwart, Illah R. Nourbakhsh", "9780262015356", "MIT Press", "2nd Edition", 2011, "English", "Locomotion, kinematics, perception, localization, and path planning.", robotics, 3);
+        addBook("Reinforcement Learning: An Introduction", "Richard S. Sutton, Andrew G. Barto", "9780262039246", "MIT Press", "2nd Edition", 2018, "English", "Markov decision processes, Q-learning, temporal difference, and deep RL.", robotics, 4);
+        addBook("Modern Robotics: Mechanics, Planning, and Control", "Kevin M. Lynch, Frank C. Park", "9781107156302", "Cambridge University Press", "1st Edition", 2017, "English", "Screw theory, Lie algebras, product of exponentials, and motion planning.", robotics, 3);
+
+        // Category 15: History, Heritage & Civilization
+        Category history = getOrCreateCategory("History, Heritage & Civilization", "World history, ancient civilizations, Indian history, and global heritage.");
+        addBook("India After Gandhi: The History of the World's Largest Democracy", "Ramachandra Guha", "9780060198817", "HarperCollins", "1st Edition", 2007, "English", "The epic narrative of post-independence India, politics, and social change.", history, 5);
+        addBook("The Discovery of India", "Jawaharlal Nehru", "9780143031031", "Penguin Classics", "Centenary Edition", 1946, "English", "Sweeping historical analysis of Indian philosophy, culture, art, and heritage.", history, 5);
+        addBook("A History of Ancient and Early Medieval India", "Upinder Singh", "9788131711200", "Pearson", "1st Edition", 2008, "English", "Prehistory to the 12th century, archaeology, epigraphy, and social structure.", history, 4);
+        addBook("The Wonder That Was India", "A.L. Basham", "9780283992575", "Picador", "Revised Edition", 1954, "English", "Classic survey of the history and culture of the Indian sub-continent.", history, 4);
+        addBook("Guns, Germs, and Steel: The Fates of Human Societies", "Jared Diamond", "9780393317558", "W. W. Norton & Company", "1st Edition", 1997, "English", "Pulitzer Prize-winning analysis of environmental and geographical factors in history.", history, 5);
+        addBook("The Silk Roads: A New History of the World", "Peter Frankopan", "9781101912379", "Vintage", "1st Edition", 2015, "English", "Reassessment of world history centered on the trade routes connecting East and West.", history, 4);
+        addBook("The Anarchy: The East India Company & Empire", "William Dalrymple", "9781635573954", "Bloomsbury Publishing", "1st Edition", 2019, "English", "The ruthless rise of the East India Company from corporate start-up to empire.", history, 5);
+
+        // Category 16: Environmental Science & Sustainability
+        Category env = getOrCreateCategory("Environmental Science & Sustainability", "Ecology, renewable energy, climate policy, conservation, and hydrology.");
+        addBook("Silent Spring", "Rachel Carson", "9780618249060", "Mariner Books", "40th Anniversary Edition", 1962, "English", "Landmark environmental book that launched the global conservation movement.", env, 4);
+        addBook("Environmental Science: Earth as a Living Planet", "Daniel B. Botkin, Edward A. Keller", "9781118427323", "Wiley", "9th Edition", 2014, "English", "Ecosystem dynamics, biodiversity, population biology, and energy resources.", env, 3);
+        addBook("Atmospheric Chemistry and Physics", "John H. Seinfeld, Spyros N. Pandis", "9781118947401", "Wiley", "3rd Edition", 2016, "English", "Air pollution, greenhouse gases, climate forcing, and cloud microphysics.", env, 2);
+        addBook("Renewable Energy: Power for a Sustainable Future", "Godfrey Boyle", "9780199545339", "Oxford University Press", "3rd Edition", 2012, "English", "Solar photovoltaics, wind turbines, biomass, hydro, and grid integration.", env, 3);
+        addBook("Drawdown: The Plan Proposed to Reverse Global Warming", "Paul Hawken", "9780143130444", "Penguin Books", "1st Edition", 2017, "English", "Top 100 substantive solutions to climate change based on rigorous modeling.", env, 4);
+        addBook("The Uninhabitable Earth: Life After Warming", "David Wallace-Wells", "9780525576709", "Tim Duggan Books", "1st Edition", 2019, "English", "Urgent assessment of climate transformation, sea levels, and economic impact.", env, 4);
+
+        System.out.println(">>> SUCCESSFULLY SEEDED ALL EPICS, WORLD FICTION, LAW, ROBOTICS, HISTORY, ENV & COLLEGE BOOKS!");
 
         seedCourseReserves();
     }
