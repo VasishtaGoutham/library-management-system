@@ -13,6 +13,19 @@
   --header-bg: rgba(9, 13, 22, 0.9);
 }
 
+/* Apple iOS Cupertino Glass (SF Pro & Frosted Glass) */
+[data-theme='apple'] {
+  --bg-color: #f2f2f7;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-border: rgba(0, 0, 0, 0.08);
+  --text-main: #1c1c1e;
+  --text-muted: #6e6e73;
+  --accent-color: #007aff;
+  --accent-hover: #0056b3;
+  --accent-light: rgba(0, 122, 255, 0.12);
+  --header-bg: rgba(242, 242, 247, 0.82);
+}
+
 /* Porcelain Light Mode (Stripe/Notion style) */
 [data-theme='porcelain'] {
   --bg-color: #f8fafc;

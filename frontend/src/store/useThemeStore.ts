@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeMode = 'obsidian' | 'porcelain' | 'emerald' | 'violet';
+export type ThemeMode = 'obsidian' | 'apple' | 'porcelain' | 'emerald' | 'violet';
 
 interface ThemeState {
   theme: ThemeMode;
