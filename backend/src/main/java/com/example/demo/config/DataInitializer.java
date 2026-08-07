@@ -53,9 +53,11 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println(">>> Initialized Default Student: student@library.com / student123");
         }
 
-        // Seed 1,000 Books across 10 Categories if book count is less than 1000
+        // Always seed all curated real books (Ramayana, Mahabharata, Bhagavad Gita, Ponniyin Selvan, Panchatantra, etc.)
+        seedComprehensiveCollegeLibrary();
+
+        // Seed additional books up to 1,000 if needed
         if (bookRepository.count() < 1000) {
-            seedComprehensiveCollegeLibrary();
             seed1000Books();
         }
     }
@@ -500,13 +502,36 @@ public class DataInitializer implements CommandLineRunner {
         return null;
     }
 
+    private String getRealCoverForKnownBook(String isbn) {
+        if (isbn == null) return null;
+        switch (isbn) {
+            case "9780143064320": return "https://images-na.ssl-images-amazon.com/images/P/0143064320.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Ramayana
+            case "9780143100133": return "https://images-na.ssl-images-amazon.com/images/P/0143100130.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Mahabharata
+            case "9781586380199": return "https://images-na.ssl-images-amazon.com/images/P/1586380195.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Bhagavad Gita
+            case "9788172230807": return "https://images-na.ssl-images-amazon.com/images/P/8172230800.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Panchatantra
+            case "9789353335502": return "https://images-na.ssl-images-amazon.com/images/P/9353335500.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Ponniyin Selvan
+            case "9789380658742": return "https://images-na.ssl-images-amazon.com/images/P/9380658745.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Immortals of Meluha
+            case "9788128822506": return "https://images-na.ssl-images-amazon.com/images/P/8128822500.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Chanakya Neeti
+            case "9788121600811": return "https://images-na.ssl-images-amazon.com/images/P/8121600810.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Godan
+            case "9788171672325": return "https://images-na.ssl-images-amazon.com/images/P/8171672320.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Gitanjali
+            case "9788121612715": return "https://images-na.ssl-images-amazon.com/images/P/8121612710.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Madhushala
+            case "9780140055016": return "https://images-na.ssl-images-amazon.com/images/P/0140055010.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Malgudi Days
+            case "9780062315007": return "https://images-na.ssl-images-amazon.com/images/P/0062315005.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // The Alchemist
+            case "9780062316097": return "https://images-na.ssl-images-amazon.com/images/P/0062316095.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Sapiens
+            case "9780735211292": return "https://images-na.ssl-images-amazon.com/images/P/0735211299.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Atomic Habits
+            default: return null;
+        }
+    }
+
     private void addBook(String title, String author, String isbn, String publisher, String edition, Integer year, String language, String desc, Category category, int copies) {
         if (bookRepository.existsByIsbnAndIsDeletedFalse(isbn)) return;
 
-        // Cover Image URL using Amazon SSL Cover CDN or reliable pool
+        // Cover Image URL resolution
+        String knownCover = getRealCoverForKnownBook(isbn);
         String cleanIsbn = isbn.replaceAll("[^0-9A-Za-z]", "");
         String amazonUrl = toAmazonIsbn10Url(cleanIsbn);
-        String coverUrl = (amazonUrl != null && !cleanIsbn.startsWith("978938")) ? amazonUrl : getCategoryCoverUrl(title);
+        
+        String coverUrl = knownCover != null ? knownCover : ((amazonUrl != null && !cleanIsbn.startsWith("978938")) ? amazonUrl : getCategoryCoverUrl(title));
 
         Book book = bookRepository.save(Book.builder()
                 .title(title)
