@@ -13,21 +13,38 @@
   --header-bg: rgba(9, 13, 22, 0.9);
 }
 
-/* Apple iOS Cupertino Glass (Signature iOS 18 Wallpaper & Glassmorphism) */
+/* Apple Minimalist SaaS Glass (Linear, Raycast & Apple Minimalist Aesthetic) */
 [data-theme='apple'] {
-  --bg-color: #e8eefc;
-  --card-bg: rgba(255, 255, 255, 0.78);
-  --card-border: rgba(255, 255, 255, 0.85);
-  --text-main: #1c1c1e;
-  --text-muted: #48484a;
-  --accent-color: #007aff;
-  --accent-hover: #0056b3;
-  --accent-light: rgba(0, 122, 255, 0.15);
-  --header-bg: rgba(232, 238, 252, 0.8);
+  --bg-color: #FAFAF8;
+  --secondary-bg: #F4F4F2;
+  --card-bg: rgba(255, 255, 255, 0.65);
+  --card-border: rgba(0, 0, 0, 0.06);
+  --text-main: #1A1A1A;
+  --text-muted: #666666;
+  --accent-color: #F97316;
+  --accent-hover: #EA580C;
+  --accent-light: rgba(249, 115, 22, 0.10);
+  --accent-green: #22C55E;
+  --header-bg: rgba(250, 250, 248, 0.75);
 }
 
 [data-theme='apple'] body {
-  background: linear-gradient(135deg, #e4ecff 0%, #eef2ff 50%, #f5eefb 100%) fixed !important;
+  background: #FAFAF8 linear-gradient(180deg, #FAFAF8 0%, #F4F4F2 100%) fixed !important;
+}
+
+[data-theme='apple'] .clean-card,
+[data-theme='apple'] .glass-card {
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  border-radius: 1.25rem;
+}
+
+[data-theme='apple'] .clean-card:hover,
+[data-theme='apple'] .glass-card:hover {
+  border-color: rgba(249, 115, 22, 0.35);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.12), 0 8px 24px -4px rgba(0, 0, 0, 0.04);
 }
 
 /* Porcelain Light Mode (Stripe/Notion style) */

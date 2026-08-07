@@ -70,7 +70,7 @@ export default function Navbar() {
 
   const themes: { id: ThemeMode; label: string; color: string }[] = [
     { id: 'obsidian', label: '🌙 Obsidian Dark', color: '#6366f1' },
-    { id: 'apple', label: '🍎 Apple iOS (Vibrant Glass Wallpaper)', color: '#007aff' },
+    { id: 'apple', label: '🍎 Apple Minimalist (Warm Ivory & Glass)', color: '#F97316' },
     { id: 'porcelain', label: '☀️ Pure Porcelain White', color: '#2563eb' },
     { id: 'emerald', label: '🌲 Cyber Emerald', color: '#10b981' },
     { id: 'violet', label: '🔮 Neon Violet', color: '#a855f7' },
