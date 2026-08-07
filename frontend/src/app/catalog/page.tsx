@@ -52,6 +52,27 @@ interface BookRatingSummary {
   reviews: Review[];
 }
 
+const getFallbackBookCover = (categoryName?: string, bookId?: number) => {
+  const covers: Record<string, string> = {
+    'Computer Science & IT': 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80',
+    'Electrical & Electronics': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
+    'Mechanical Engineering': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80',
+    'Mathematics & Data Science': 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&auto=format&fit=crop&q=80',
+    'Physics & Chemistry': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&auto=format&fit=crop&q=80',
+    'Business & Management': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80',
+    'Economics & Finance': 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80',
+    'Medical & Life Sciences': 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=600&auto=format&fit=crop&q=80',
+    'Civil & Architecture': 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?w=600&auto=format&fit=crop&q=80',
+    'Literature & Humanities': 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80',
+  };
+
+  if (categoryName && covers[categoryName]) {
+    return covers[categoryName];
+  }
+  const fallbackList = Object.values(covers);
+  return fallbackList[(bookId || 0) % fallbackList.length];
+};
+
 function CatalogContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -93,7 +114,7 @@ function CatalogContent() {
   const { data: rawBooks, isLoading: isLoadingBooks } = useQuery({
     queryKey: ['books', selectedCategory, search],
     queryFn: async () => {
-      let url = '/books?size=500';
+      let url = '/books?size=2000';
       if (selectedCategory) url += `&categoryId=${selectedCategory}`;
       if (search) url += `&query=${encodeURIComponent(search)}`;
 
@@ -278,18 +299,14 @@ function CatalogContent() {
                 <div>
                   {/* Book Cover Image */}
                   <div className="h-52 w-full relative bg-slate-950 overflow-hidden flex items-center justify-center group/cover">
-                    {book.coverImageUrl ? (
-                      <img
-                        src={book.coverImageUrl}
-                        alt={book.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover/cover:scale-110"
-                      />
-                    ) : (
-                      <div className="text-center p-4">
-                        <BookOpen className="w-10 h-10 mx-auto text-slate-600 mb-2" />
-                        <span className="text-[10px] text-slate-500 font-mono">No Image Available</span>
-                      </div>
-                    )}
+                    <img
+                      src={book.coverImageUrl && !book.coverImageUrl.includes('openlibrary.org') ? book.coverImageUrl : getFallbackBookCover(book.categoryName, book.id)}
+                      alt={book.title}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = getFallbackBookCover(book.categoryName, book.id);
+                      }}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/cover:scale-110"
+                    />
 
                     {/* Interactive Quick Action Hover Overlay */}
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover/cover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-2.5 p-4">
