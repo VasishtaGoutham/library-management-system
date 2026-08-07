@@ -105,6 +105,11 @@ export default function Navbar() {
 
           <Link
             href="/catalog"
+            onClick={() => {
+              if (pathname === '/catalog') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
             className={`transition hover:scale-105 ${pathname === '/catalog' ? 'font-bold' : 'hover:opacity-80'}`}
             style={{ color: pathname === '/catalog' ? 'var(--accent-color)' : 'var(--text-main)' }}
           >

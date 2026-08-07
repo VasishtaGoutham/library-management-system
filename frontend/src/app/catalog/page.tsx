@@ -268,7 +268,7 @@ function CatalogContent() {
   const { data: rawBooks, isLoading: isLoadingBooks } = useQuery({
     queryKey: ['books', selectedCategory, search],
     queryFn: async () => {
-      let url = '/books?size=2000';
+      let url = '/books?size=20000';
       if (selectedCategory) url += `&categoryId=${selectedCategory}`;
       if (search) url += `&query=${encodeURIComponent(search)}`;
 
