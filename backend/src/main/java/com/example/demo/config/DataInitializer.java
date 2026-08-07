@@ -6,6 +6,7 @@ import com.example.demo.repository.BookRepository;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.CourseReserveRepository;
 import com.example.demo.repository.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,9 +53,10 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println(">>> Initialized Default Student: student@library.com / student123");
         }
 
-        // Seed 200 Books across 10 Categories if book count is less than 200
-        if (bookRepository.count() < 200) {
+        // Seed 1,000 Books across 10 Categories if book count is less than 1000
+        if (bookRepository.count() < 1000) {
             seedComprehensiveCollegeLibrary();
+            seed1000Books();
         }
     }
 
@@ -362,6 +364,60 @@ public class DataInitializer implements CommandLineRunner {
         });
 
         System.out.println(">>> SEEDED SAMPLE COURSE RESERVES!");
+    }
+
+    private void seed1000Books() {
+        long currentCount = bookRepository.count();
+        if (currentCount >= 1000) return;
+
+        System.out.println(">>> Expanding library collection to 1,000+ books... Current count: " + currentCount);
+
+        List<Category> categories = categoryRepository.findAll();
+        if (categories.isEmpty()) return;
+
+        String[] prefixes = {"Advanced ", "Principles of ", "Fundamentals of ", "Modern ", "Applied ", "Handbook of ", "Essentials of ", "Introduction to ", "Mastering ", "Comprehensive "};
+        
+        String[][] subjectsPerCategory = {
+            {"Cloud Native Architecture", "Kubernetes Microservices", "Machine Learning Operations", "Compiler Optimization", "Distributed Database Engines", "Quantum Computing Algorithms", "Cybersecurity Threat Hunting", "Full-Stack Web Engineering", "Rust Systems Programming", "Deep Neural Networks"},
+            {"VLSI Circuit Engineering", "Embedded System Interfaces", "Microcontroller Architecture", "Digital Signal Processing", "Power Electronics & Smart Grids", "Semiconductor Device Physics", "Control Systems Engineering", "RF Microwave Circuits", "Optical Communications", "Robotic Sensor Fusion"},
+            {"Applied Thermodynamics", "Fluid Dynamics & Turbomachinery", "Finite Element Analysis", "Kinematics of Advanced Machinery", "Computational Fluid Dynamics", "Automotive Powertrains", "Industrial Robotics & Mechatronics", "Materials Metallurgy", "Heat and Mass Transfer", "Robotic Manipulators"},
+            {"Multivariable Vector Calculus", "Applied Matrix Linear Algebra", "Stochastic Probability Processes", "Numerical Methods for Engineers", "Bayesian Data Analysis", "Graph Theory & Combinatorics", "Nonlinear Differential Equations", "Statistical Learning Theory", "Algebraic Topology", "Convex Optimization"},
+            {"Quantum Field Theory", "Classical Hamiltonian Mechanics", "Electrodynamics & Relativity", "Organic Synthesis Reactions", "Physical Chemistry Kinetics", "Nuclear & Particle Physics", "Solid State Condensed Matter", "Laser Spectroscopy", "Analytical Chemistry Instrumentation", "Astrophysics & Cosmology"},
+            {"Strategic Corporate Leadership", "Global Supply Chain Logistics", "Digital Marketing Analytics", "Agile Product Management", "Organizational Behavior", "Venture Capital & Startups", "Corporate Governance Ethics", "Brand Equity Strategy", "Operations Research", "Financial Risk Governance"},
+            {"Macroeconomic Policy Analysis", "Financial Econometrics", "Corporate Valuation Models", "Options & Financial Derivatives", "Behavioral Economics & Decisions", "International Trade Agreements", "Asset Pricing Models", "Fintech & Blockchain Economics", "Public Fiscal Policy", "Banking Risk Assessment"},
+            {"Clinical Human Neuroanatomy", "Medical Pathophysiology", "Pharmacology & Drug Action", "Cellular Molecular Biology", "Human Genomics & Genetics", "Immunology & Disease", "Neuroscience & Cognitive Systems", "Clinical Microbiology", "Epidemiology & Biostatistics", "Metabolic Biochemistry"},
+            {"Structural Reinforced Concrete", "Geotechnical Foundation Engineering", "Transportation Network Design", "Environmental Hydrology", "Building Information Modeling", "Geospatial GIS Mapping", "Urban Infrastructure Planning", "Seismic Earthquake Engineering", "Construction Project Dynamics", "Architectural Acoustics"},
+            {"World History & Civilizations", "Formal Logic & Critical Thought", "Ethics & Moral Philosophy", "Comparative Literature Studies", "Cultural Anthropology", "Sociology of Media", "Political Theory & Democracy", "Art History & Visual Culture", "Philosophy of Mind", "Environmental Philosophy"}
+        };
+
+        String[] publishers = {"MIT Press", "O'Reilly Media", "Cambridge University Press", "Oxford University Press", "Pearson", "Springer Nature", "McGraw-Hill", "Wiley", "Academic Press", "Harvard Business Publishing"};
+        String[] authors = {"Dr. Arthur Pendelton", "Prof. Eleanor Vance", "Dr. Marcus Sterling", "Prof. Sophia Chen", "Dr. Vikram Patel", "Prof. Hannah Wright", "Dr. Liam O'Connor", "Prof. Maya Lin", "Dr. David Miller", "Prof. Sarah Jenkins"};
+
+        long target = 1000 - currentCount;
+        int seeded = 0;
+
+        for (int i = 1; i <= target; i++) {
+            int catIdx = i % categories.size();
+            Category cat = categories.get(catIdx);
+            
+            String prefix = prefixes[i % prefixes.length];
+            String[] subList = subjectsPerCategory[catIdx % subjectsPerCategory.length];
+            String subject = subList[i % subList.length];
+            
+            int volNum = (i / 10) + 1;
+            String title = prefix + subject + " (Vol. " + volNum + ")";
+            String author = authors[i % authors.length] + " & Co.";
+            String isbn = String.format("978938%07d", i + (int)currentCount);
+            String publisher = publishers[i % publishers.length];
+            String edition = ((i % 4) + 1) + "th Edition";
+            int year = 2012 + (i % 14);
+            String desc = "Comprehensive academic textbook on " + subject + " covering core theoretical foundations, practical case studies, and advanced problem-solving methodologies for university students and researchers.";
+            
+            addBook(title, author, isbn, publisher, edition, year, "English", desc, cat, 3);
+            seeded++;
+        }
+
+        System.out.println(">>> SUCCESSFULLY SEEDED " + seeded + " ADDITIONAL BOOKS! TOTAL BOOKS NOW: " + bookRepository.count());
     }
 
     private Category getOrCreateCategory(String name, String desc) {
