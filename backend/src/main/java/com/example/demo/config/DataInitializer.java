@@ -499,6 +499,19 @@ public class DataInitializer implements CommandLineRunner {
             case "9780062315007": return "https://images-na.ssl-images-amazon.com/images/P/0062315005.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // The Alchemist
             case "9780062316097": return "https://images-na.ssl-images-amazon.com/images/P/0062316095.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Sapiens
             case "9780735211292": return "https://images-na.ssl-images-amazon.com/images/P/0735211299.01._SX350_SY475_SCLZZZZZZZ_.jpg"; // Atomic Habits
+            case "9788126027581": return "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&auto=format&fit=crop&q=80"; // Maha Prasthanam
+            case "9788177641201": return "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&auto=format&fit=crop&q=80"; // Vemana Satakam
+            case "9788126006427": return "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=600&auto=format&fit=crop&q=80"; // Kanyasulkam
+            case "9788177645018": return "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&auto=format&fit=crop&q=80"; // Amrutham Kurisina Ratri
+            case "9788187802102": return "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=600&auto=format&fit=crop&q=80"; // Srimad Ramayanamu
+            case "9788120601383": return "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80"; // Tirukkural
+            case "9788172861216": return "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&auto=format&fit=crop&q=80"; // Karvalo
+            case "9780195623000": return "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80"; // Samskara
+            case "9788126401666": return "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600&auto=format&fit=crop&q=80"; // Chemmeen
+            case "9788126404735": return "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80"; // Randumoozham
+            case "9780241982709": return "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80"; // Pather Panchali
+            case "9788171850433": return "https://images.unsplash.com/photo-1550399105-c4db5fb85c18?w=600&auto=format&fit=crop&q=80"; // Yayati
+            case "9788172234058": return "https://images.unsplash.com/photo-1476275466078-4007374efbbe?w=600&auto=format&fit=crop&q=80"; // Pinjar
             default: return null;
         }
     }

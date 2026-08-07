@@ -118,15 +118,53 @@ const getAmazonIsbn10Cover = (isbn13: string) => {
   return null;
 };
 
+const KNOWN_TITLE_COVERS: Record<string, string> = {
+  'the ramayana of valmiki': 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=600&auto=format&fit=crop&q=80',
+  'the mahabharata': 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80',
+  'the bhagavad gita': 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600&auto=format&fit=crop&q=80',
+  'panchatantra: ancient fables of india': 'https://images.unsplash.com/photo-1550399105-c4db5fb85c18?w=600&auto=format&fit=crop&q=80',
+  'ponniyin selvan (the son of ponni)': 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80',
+  'maha prasthanam': 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&auto=format&fit=crop&q=80',
+  'vemana satakam': 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&auto=format&fit=crop&q=80',
+  'kanyasulkam': 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=600&auto=format&fit=crop&q=80',
+  'amrutham kurisina ratri': 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&auto=format&fit=crop&q=80',
+  'srimad ramayanamu (kalpavrukshamu)': 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=600&auto=format&fit=crop&q=80',
+  'godan (the gift of a cow)': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80',
+  'gitanjali (song offerings)': 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&auto=format&fit=crop&q=80',
+  'madhushala (house of wine)': 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80',
+  'malgudi days': 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80',
+  'shiva trilogy: the immortals of meluha': 'https://images-na.ssl-images-amazon.com/images/P/9380658745.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'chanakya neeti: ancient indian strategy': 'https://images.unsplash.com/photo-1476275466078-4007374efbbe?w=600&auto=format&fit=crop&q=80',
+  'clean code: refactoring & testing': 'https://images-na.ssl-images-amazon.com/images/P/0132350882.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'introduction to algorithms (clrs)': 'https://images-na.ssl-images-amazon.com/images/P/0262033844.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'design patterns: reusable object-oriented software': 'https://images-na.ssl-images-amazon.com/images/P/0201633612.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'artificial intelligence: a modern approach': 'https://images-na.ssl-images-amazon.com/images/P/0134610997.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'the intelligent investor': 'https://images-na.ssl-images-amazon.com/images/P/0060555661.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'to kill a mockingbird': 'https://images-na.ssl-images-amazon.com/images/P/0060935464.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  '1984': 'https://images-na.ssl-images-amazon.com/images/P/0451524934.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'the alchemist': 'https://images-na.ssl-images-amazon.com/images/P/0062315005.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'sapiens: a brief history of humankind': 'https://images-na.ssl-images-amazon.com/images/P/0062316095.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+  'atomic habits': 'https://images-na.ssl-images-amazon.com/images/P/0735211299.01._SX350_SY475_SCLZZZZZZZ_.jpg',
+};
+
 const getRealBookCover = (book: Book) => {
-  if (book.coverImageUrl && !book.coverImageUrl.includes('openlibrary.org') && !book.coverImageUrl.includes('books.google.com')) {
+  if (book.title) {
+    const titleKey = book.title.toLowerCase().trim();
+    if (KNOWN_TITLE_COVERS[titleKey]) {
+      return KNOWN_TITLE_COVERS[titleKey];
+    }
+  }
+
+  if (book.coverImageUrl && !book.coverImageUrl.includes('openlibrary.org') && !book.coverImageUrl.includes('books.google.com') && !book.coverImageUrl.includes('images-na.ssl-images-amazon.com')) {
     return book.coverImageUrl;
   }
+
   const cleanIsbn = (book.isbn || '').replace(/[^0-9A-Za-z]/g, '');
-  if (cleanIsbn.length >= 10 && !cleanIsbn.startsWith('978938')) {
+  if (cleanIsbn.length >= 10 && !cleanIsbn.startsWith('978938') && !cleanIsbn.startsWith('97881')) {
     const amazonUrl = getAmazonIsbn10Cover(cleanIsbn);
     if (amazonUrl) return amazonUrl;
   }
+
   return getFallbackBookCover(book.categoryName, book.id);
 };
 
