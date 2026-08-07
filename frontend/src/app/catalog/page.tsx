@@ -359,7 +359,7 @@ function CatalogContent() {
             {categories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
+                onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
                 className={`px-4 py-2 rounded-xl font-medium transition shrink-0 ${
                   selectedCategory === cat.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:opacity-80'
                 }`}
@@ -379,7 +379,7 @@ function CatalogContent() {
             {LANGUAGES.map((lang) => (
               <button
                 key={lang}
-                onClick={() => setSelectedLanguage(lang === 'All Languages' ? null : lang)}
+                onClick={() => setSelectedLanguage((lang === 'All Languages' || selectedLanguage === lang) ? null : lang)}
                 className={`px-3 py-1.5 rounded-lg font-semibold transition shrink-0 ${
                   (selectedLanguage === null && lang === 'All Languages') || selectedLanguage === lang
                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
